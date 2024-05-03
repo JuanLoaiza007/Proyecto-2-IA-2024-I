@@ -3,7 +3,7 @@ from queue import Queue
 import json
 import copy
 
-debug = True
+debug = False
 
 
 def print_debug(message):

@@ -1,6 +1,6 @@
 import time
 
-debug = True
+debug = False
 
 
 def print_debug(message):

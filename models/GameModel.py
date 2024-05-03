@@ -1,6 +1,6 @@
 # [GameModel.py]
 
-debug = True
+debug = False
 
 
 def print_debug(message):
