@@ -8,7 +8,7 @@ from models.GameModel import GameModel
 from models.shared.tools.iTimerPyQt5 import iTimerPyQt5
 from PyQt5.QtCore import QThread
 
-debug = True
+debug = False
 
 
 def print_debug(message):

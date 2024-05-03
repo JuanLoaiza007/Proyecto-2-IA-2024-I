@@ -7,7 +7,7 @@ from views.MainView import Ui_MainWindow
 from models.MainModel import MainModel
 from models.shared.tools.Dialog import Dialog
 
-debug = True
+debug = False
 
 
 def print_debug(message):

@@ -3,7 +3,7 @@
 from views.AboutUsView import Ui_MainWindow
 from models.AboutUsModel import AboutUsModel
 
-debug = True
+debug = False
 
 
 def print_debug(message):

@@ -2,7 +2,7 @@
 
 from models.shared.tools.File_selector import File_selector
 
-debug = True
+debug = False
 
 
 def print_debug(message):
