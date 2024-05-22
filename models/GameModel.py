@@ -20,38 +20,58 @@ class GameModel:
                         [0, 0, 0, 0, 2],
                         ]
 
-    def count_machine_points(self):
+    def generateHorseMoves(self, old_pos):
+        filas = range(len(self.tablero))
+        columnas = range(len(self.tablero[0]))
+
+        movimientos = [(2, 1), (-2, 1), (2, -1), (-2, -1),
+                       (1, 2), (-1, 2), (1, -2), (-1, -2),]
+        posibles_movimientos = []
+
+        for movimiento in movimientos:
+            new_pos = (old_pos[0] + movimiento[0], old_pos[1] + movimiento[1])
+            if new_pos[0] in filas and new_pos[1] in columnas and self.isFreePosition(new_pos):
+                posibles_movimientos.append(new_pos)
+        return posibles_movimientos
+
+    def isFreePosition(self, pos):
+        return self.tablero[pos[0]][pos[1]] == 0
+
+    def isValidHorseMove(self, old_pos, new_pos):
+        dx = abs(old_pos[0] - new_pos[0])
+        dy = abs(old_pos[1] - new_pos[1])
+        print_debug("dx: " + str(dx) + " dy: " + str(dy))
+        return (dx, dy) in [(1, 2), (2, 1)]
+
+    def isValidMove(self, old_pos, new_pos):
+        return self.isValidHorseMove(old_pos, new_pos) and self.isFreePosition(new_pos)
+
+    def canMoveFrom(self, old_pos):
+        possible_moves = self.generateHorseMoves(old_pos)
+        for move in possible_moves:
+            if self.isValidMove(old_pos, move):
+                return True
+        return False
+
+    def countPoints(self, someone="Human"):
         count = 0
+        now = 1 if someone == "Human" else 2
+        taked = 3 if someone == "Human" else 4
         for i in range(len(self.tablero)):
-            for j in range(len(self.tablero[0])):
-                if self.tablero[i][j] == 1 or self.tablero[i][j] == 3:
+            for j in range(len(self.tablero[i])):
+                if self.tablero[i][j] == now or self.tablero[i][j] == taked:
                     count += 1
         return count
 
-    def count_human_points(self):
-        count = 0
+    def searchCoords(self, someone="Machine"):
+        id = 1 if someone == "Machine" else 2
         for i in range(len(self.tablero)):
             for j in range(len(self.tablero[0])):
-                if self.tablero[i][j] == 2 or self.tablero[i][j] == 4:
-                    count += 1
-        return count
-
-    def search_machine_coords(self):
-        for i in range(len(self.tablero)):
-            for j in range(len(self.tablero[0])):
-                if self.tablero[i][j] == 1:
+                if self.tablero[i][j] == id:
                     return (i, j)
-        raise Exception("No se encontró a la máquina en el tablero")
+        raise Exception(f"No se encontró a {someone}")
 
-    def search_human_coords(self):
-        for i in range(len(self.tablero)):
-            for j in range(len(self.tablero[0])):
-                if self.tablero[i][j] == 2:
-                    return (i, j)
-        raise Exception("No se encontró al humano en el tablero")
-
-    def imprimir_tablero(self):
-        print_debug("imprimir_tablero() -> Imprimiendo el tablero")
+    def printTablero(self):
         for i in range(len(self.tablero)):
             for j in range(len(self.tablero[0])):
                 print(self.tablero[i][j], end=" ")

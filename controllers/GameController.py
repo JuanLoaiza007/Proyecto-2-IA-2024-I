@@ -60,6 +60,11 @@ class GameController:
         self.paint_board(self.modelo.tablero)
         self.update_game_state_label()
 
+        self.human_can_move = self.modelo.canMoveFrom(
+            self.modelo.searchCoords("Human"))
+        self.machine_can_move = self.modelo.canMoveFrom(
+            self.modelo.searchCoords("Machine"))
+
         # Hilo de procesamiento
         self.hilo_procesamiento: WorkerThread = None
 
@@ -98,7 +103,7 @@ class GameController:
                 button = QtWidgets.QPushButton(self.ui.mainFrame)
                 button.setSizePolicy(
                     QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-                button.setIconSize(QSize(80, 80))
+                button.setIconSize(icon_size)
                 button.setCursor(QtGui.QCursor(Qt.PointingHandCursor))
                 button.setObjectName(f"btn_{i}-{j}")
                 button.setProperty("class", _translate(
@@ -147,8 +152,8 @@ class GameController:
     def update_game_state_label(self):
 
         quienJuega = "Maquina" if self.machineTurn else "Humano"
-        puntosMaquina = self.modelo.count_machine_points()
-        puntosHumano = self.modelo.count_human_points()
+        puntosMaquina = self.modelo.countPoints("Machine")
+        puntosHumano = self.modelo.countPoints("Human")
 
         self.ui.lbl_estado_juego.setText(
             f"Turno: {quienJuega} | Maquina: {puntosMaquina} | Humano: {puntosHumano}")
@@ -158,25 +163,37 @@ class GameController:
         self.buttons[i][j].clicked.disconnect()
 
     def handle_button_click(self, button):
-        machineCoords = self.modelo.search_machine_coords()
-        humanCoords = self.modelo.search_human_coords()
+        machineCoords = self.modelo.searchCoords("Machine")
+        humanCoords = self.modelo.searchCoords("Human")
 
         i = int(button.objectName().split("_")[1].split("-")[0])
         j = int(button.objectName().split("-")[1])
 
+        old_pos = None
+        new_pos = (i, j)
+
         if (self.machineTurn):
-            self.modelo.tablero[i][j] = 1
-            self.modelo.tablero[machineCoords[0]][machineCoords[1]] = 3
+            old_pos = self.modelo.searchCoords("Machine")
         else:
-            self.modelo.tablero[i][j] = 2
-            self.modelo.tablero[humanCoords[0]][humanCoords[1]] = 4
+            old_pos = self.modelo.searchCoords("Human")
 
-        self.disable_button(i, j)
-        self.machineTurn = not self.machineTurn
+        if (self.modelo.isValidMove(old_pos, new_pos)):
 
-        self.modelo.imprimir_tablero()
-        self.paint_board(self.modelo.tablero)
-        self.update_game_state_label()
+            if (self.machineTurn):
+                self.modelo.tablero[i][j] = 1
+                self.modelo.tablero[machineCoords[0]][machineCoords[1]] = 3
+            else:
+                self.modelo.tablero[i][j] = 2
+                self.modelo.tablero[humanCoords[0]][humanCoords[1]] = 4
+
+            self.disable_button(i, j)
+            self.machineTurn = not self.machineTurn
+
+            self.modelo.printTablero()
+            self.paint_board(self.modelo.tablero)
+            self.update_game_state_label()
+        else:
+            print_debug("Este movimiento no es válido")
 
     def mostrar(self, main_window):
         self.cargar(main_window)
