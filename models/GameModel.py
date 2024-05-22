@@ -53,10 +53,10 @@ class GameModel:
                 return True
         return False
 
-    def countPoints(self, someone="Human"):
+    def countPoints(self, someone="Machine"):
         count = 0
-        now = 1 if someone == "Human" else 2
-        taked = 3 if someone == "Human" else 4
+        now = 1 if someone == "Machine" else 2
+        taked = 1 if someone == "Machine" else 4
         for i in range(len(self.tablero)):
             for j in range(len(self.tablero[i])):
                 if self.tablero[i][j] == now or self.tablero[i][j] == taked:
