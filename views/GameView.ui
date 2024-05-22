@@ -186,13 +186,11 @@ QMainWindow {
 }
 
 /* Buttons */
-QPushButton {
+.ficha {
   font-weight: 500;
-  color: white;
-  background-color: gray;
-  padding: 6px 12px;
+  padding: 0px 0px;
   font-size: 18px;
-  border-radius: 10px;
+  border-radius: 0px;
   border: 1px solid;
 }
 
@@ -528,99 +526,43 @@ QLabel {
       </property>
       <layout class="QGridLayout" name="gridLayout">
        <item row="0" column="0">
-        <widget class="QTableWidget" name="table_mapa">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>460</width>
-           <height>460</height>
-          </size>
-         </property>
+        <widget class="QFrame" name="mainFrame">
          <property name="maximumSize">
           <size>
            <width>460</width>
            <height>460</height>
           </size>
          </property>
-         <property name="sizeIncrement">
-          <size>
-           <width>0</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <pointsize>1</pointsize>
-          </font>
-         </property>
-         <property name="cursor" stdset="0">
-          <cursorShape>ArrowCursor</cursorShape>
-         </property>
-         <property name="focusPolicy">
-          <enum>Qt::NoFocus</enum>
-         </property>
          <property name="frameShape">
           <enum>QFrame::StyledPanel</enum>
          </property>
          <property name="frameShadow">
-          <enum>QFrame::Plain</enum>
+          <enum>QFrame::Raised</enum>
          </property>
-         <property name="verticalScrollBarPolicy">
-          <enum>Qt::ScrollBarAlwaysOff</enum>
-         </property>
-         <property name="horizontalScrollBarPolicy">
-          <enum>Qt::ScrollBarAlwaysOff</enum>
-         </property>
-         <property name="sizeAdjustPolicy">
-          <enum>QAbstractScrollArea::AdjustToContentsOnFirstShow</enum>
-         </property>
-         <property name="autoScroll">
-          <bool>false</bool>
-         </property>
-         <property name="editTriggers">
-          <set>QAbstractItemView::NoEditTriggers</set>
-         </property>
-         <property name="tabKeyNavigation">
-          <bool>false</bool>
-         </property>
-         <property name="showDropIndicator" stdset="0">
-          <bool>false</bool>
-         </property>
-         <property name="dragDropOverwriteMode">
-          <bool>false</bool>
-         </property>
-         <property name="selectionMode">
-          <enum>QAbstractItemView::NoSelection</enum>
-         </property>
-         <property name="selectionBehavior">
-          <enum>QAbstractItemView::SelectItems</enum>
-         </property>
-         <property name="textElideMode">
-          <enum>Qt::ElideNone</enum>
-         </property>
-         <property name="showGrid">
-          <bool>true</bool>
-         </property>
-         <property name="wordWrap">
-          <bool>true</bool>
-         </property>
-         <property name="cornerButtonEnabled">
-          <bool>false</bool>
-         </property>
-         <property name="rowCount">
-          <number>0</number>
-         </property>
-         <attribute name="horizontalHeaderVisible">
-          <bool>true</bool>
-         </attribute>
-         <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
-          <bool>false</bool>
-         </attribute>
+         <layout class="QHBoxLayout" name="horizontalLayout">
+          <property name="spacing">
+           <number>0</number>
+          </property>
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <item>
+           <layout class="QGridLayout" name="mainGridLayout">
+            <property name="spacing">
+             <number>0</number>
+            </property>
+           </layout>
+          </item>
+         </layout>
         </widget>
        </item>
       </layout>
@@ -671,12 +613,12 @@ QLabel {
           <string>Volver</string>
          </property>
          <property name="class" stdset="0">
-          <string>btn-outline-dark h6</string>
+          <string>btn btn-outline-dark h6</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="lbl_estado_agente">
+        <widget class="QLabel" name="lbl_estado_juego">
          <property name="minimumSize">
           <size>
            <width>0</width>
@@ -715,7 +657,7 @@ QLabel {
           <string>Ver reporte</string>
          </property>
          <property name="class" stdset="0">
-          <string>btn-outline-danger h6</string>
+          <string>btn btn-outline-danger h6</string>
          </property>
         </widget>
        </item>
