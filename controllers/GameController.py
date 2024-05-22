@@ -34,7 +34,7 @@ class WorkerThread(QThread):
 
 class GameController:
     """
-    Clase GameController. 
+    Clase GameController.
     Gestiona todo lo necesario para ejecutar un algoritmo y mostrarlo visualmente
 
     Atencion! Antes de ejecutar "mostrar()":
@@ -45,6 +45,7 @@ class GameController:
 
     # Funcion para inicializar (general)
     def cargar(self, main_window):
+        self.machineTurn = True
         self.modelo = GameModel()
         self.MainWindow = main_window
         self.minSizeHint = QSize(800, 600)
@@ -52,8 +53,12 @@ class GameController:
         self.restart_window_size()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self.MainWindow)
-        # self.deshabilitar_botones_footer()
-        self.create_board(5, 5)
+
+        self.buttons = []
+        self.create_board(len(self.modelo.tablero),
+                          len(self.modelo.tablero[0]))
+        self.paint_board(self.modelo.tablero)
+        self.update_game_state_label()
 
         # Hilo de procesamiento
         self.hilo_procesamiento: WorkerThread = None
@@ -80,7 +85,12 @@ class GameController:
 
     def create_board(self, rows, cols):
         _translate = QCoreApplication.translate
-        self.buttons = []
+        icon_size = None
+
+        if rows <= 6 and cols <= 6:
+            icon_size = QSize(80, 80)
+        else:
+            icon_size = QSize(30, 30)
 
         for i in range(rows):
             row_buttons = []
@@ -88,8 +98,9 @@ class GameController:
                 button = QtWidgets.QPushButton(self.ui.mainFrame)
                 button.setSizePolicy(
                     QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+                button.setIconSize(QSize(80, 80))
                 button.setCursor(QtGui.QCursor(Qt.PointingHandCursor))
-                button.setObjectName(f"btn_{i}_{j}")
+                button.setObjectName(f"btn_{i}-{j}")
                 button.setProperty("class", _translate(
                     "MainWindow", "ficha"))
                 button.clicked.connect(
@@ -98,14 +109,74 @@ class GameController:
                 row_buttons.append(button)
             self.buttons.append(row_buttons)
 
-    def handle_button_click(self, button):
-        button.setCursor(QtGui.QCursor(Qt.ArrowCursor))
-        button.setEnabled(False)
-        print(f"Button {button.objectName()} clicked")
+    def paint_board(self, board):
+        # Images path
+        green_yoshi_abs_path = os.path.abspath(
+            "./assets/images/green_yoshi.png")
+        red_yoshi_abs_path = os.path.abspath("./assets/images/red_yoshi.png")
 
-    def actualizar_tabla(self):
-        print_debug(
-            "actualizar_tabla -> Me han llamado pero no estoy implementado.")
+        # Icons
+        green_yoshi_icon = QtGui.QIcon(green_yoshi_abs_path)
+        red_yoshi_icon = QtGui.QIcon(red_yoshi_abs_path)
+        null_icon = QtGui.QIcon()
+
+        for i in range(len(board)):
+            for j in range(len(board[0])):
+                button = self.buttons[i][j]
+                if board[i][j] == 1:
+                    button.setIcon(green_yoshi_icon)
+                    self.buttons[i][j].setStyleSheet(
+                        "background-color: #2ecc71;")
+                elif board[i][j] == 2:
+                    button.setIcon(red_yoshi_icon)
+                    self.buttons[i][j].setStyleSheet(
+                        "background-color: #e74c3c;")
+                else:
+                    button.setIcon(null_icon)
+                    if board[i][j] == 3:
+                        self.buttons[i][j].setStyleSheet(
+                            "background-color: #27ae60;")
+                    elif board[i][j] == 4:
+                        self.buttons[i][j].setStyleSheet(
+                            "background-color: #c0392b;")
+                    else:
+                        self.buttons[i][j].setStyleSheet(
+                            "background-color: white;")
+        print("\n\n\n")
+
+    def update_game_state_label(self):
+
+        quienJuega = "Maquina" if self.machineTurn else "Humano"
+        puntosMaquina = self.modelo.count_machine_points()
+        puntosHumano = self.modelo.count_human_points()
+
+        self.ui.lbl_estado_juego.setText(
+            f"Turno: {quienJuega} | Maquina: {puntosMaquina} | Humano: {puntosHumano}")
+
+    def disable_button(self, i, j):
+        self.buttons[i][j].setCursor(QtGui.QCursor(Qt.ArrowCursor))
+        self.buttons[i][j].clicked.disconnect()
+
+    def handle_button_click(self, button):
+        machineCoords = self.modelo.search_machine_coords()
+        humanCoords = self.modelo.search_human_coords()
+
+        i = int(button.objectName().split("_")[1].split("-")[0])
+        j = int(button.objectName().split("-")[1])
+
+        if (self.machineTurn):
+            self.modelo.tablero[i][j] = 1
+            self.modelo.tablero[machineCoords[0]][machineCoords[1]] = 3
+        else:
+            self.modelo.tablero[i][j] = 2
+            self.modelo.tablero[humanCoords[0]][humanCoords[1]] = 4
+
+        self.disable_button(i, j)
+        self.machineTurn = not self.machineTurn
+
+        self.modelo.imprimir_tablero()
+        self.paint_board(self.modelo.tablero)
+        self.update_game_state_label()
 
     def mostrar(self, main_window):
         self.cargar(main_window)
