@@ -1,8 +1,8 @@
 # [GameController.py]
 
 import os
-from PyQt5 import QtWidgets
-from PyQt5.QtCore import Qt, QSize
+from PyQt5 import QtWidgets, QtGui
+from PyQt5.QtCore import Qt, QSize, QCoreApplication
 from views.GameView import Ui_MainWindow
 from models.GameModel import GameModel
 from models.shared.tools.iTimerPyQt5 import iTimerPyQt5
@@ -53,7 +53,7 @@ class GameController:
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self.MainWindow)
         # self.deshabilitar_botones_footer()
-        self.inicializar_tabla()
+        self.create_board(5, 5)
 
         # Hilo de procesamiento
         self.hilo_procesamiento: WorkerThread = None
@@ -78,15 +78,30 @@ class GameController:
         self.cerrar_procesamientos()
         os._exit(0)
 
-    def inicializar_tabla(self):
-        self.ui.table_mapa.setRowCount(10)
-        self.ui.table_mapa.setColumnCount(10)
-        self.ui.table_mapa.verticalHeader().setVisible(False)
-        self.ui.table_mapa.horizontalHeader().setVisible(False)
-        self.ui.table_mapa.horizontalHeader().setSectionResizeMode(
-            QtWidgets.QHeaderView.Stretch)
-        self.ui.table_mapa.verticalHeader().setSectionResizeMode(
-            QtWidgets.QHeaderView.Stretch)
+    def create_board(self, rows, cols):
+        _translate = QCoreApplication.translate
+        self.buttons = []
+
+        for i in range(rows):
+            row_buttons = []
+            for j in range(cols):
+                button = QtWidgets.QPushButton(self.ui.mainFrame)
+                button.setSizePolicy(
+                    QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+                button.setCursor(QtGui.QCursor(Qt.PointingHandCursor))
+                button.setObjectName(f"btn_{i}_{j}")
+                button.setProperty("class", _translate(
+                    "MainWindow", "ficha"))
+                button.clicked.connect(
+                    lambda checked, button=button: self.handle_button_click(button))
+                self.ui.mainGridLayout.addWidget(button, i, j)
+                row_buttons.append(button)
+            self.buttons.append(row_buttons)
+
+    def handle_button_click(self, button):
+        button.setCursor(QtGui.QCursor(Qt.ArrowCursor))
+        button.setEnabled(False)
+        print(f"Button {button.objectName()} clicked")
 
     def actualizar_tabla(self):
         print_debug(
