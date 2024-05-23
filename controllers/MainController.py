@@ -26,13 +26,14 @@ class MainController:
         self.restart_window_size()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self.MainWindow)
-        self.cargar_imagenes()
-
-        # Configuracion del modelo
 
         # Listeners específicos
+        self.ui.box_dificultad.currentIndexChanged.connect(self.cambiar_dificultad)
         self.ui.btn_iniciar.clicked.connect(self.iniciar)
         self.ui.btn_sobre.clicked.connect(self.mostrar_sobre_nosotros)
+
+        self.ui.box_dificultad.addItems(self.modelo.dificultades)
+        self.cargar_imagenes()
 
     def block_window_size(self):
         self.MainWindow.setFixedSize(self.MainWindow.size())
@@ -48,6 +49,9 @@ class MainController:
         print_debug(
             "cargar_imagenes -> La funcion de cargar imagenes aún no está implementada"
         )
+
+    def cambiar_dificultad(self):
+        self.modelo.dificultad = self.ui.box_dificultad.currentText()
 
     def mostrar(self, main_window):
         self.cargar(main_window)
@@ -87,9 +91,12 @@ class MainController:
     def iniciar(self):
         from controllers.GameController import GameController
 
+        if not (self.modelo.dificultad):
+            self.mostrar_dialogo("Error", f"La dificultad es {self.modelo.dificultad}")
+            return None
         self.controlador = GameController()
         self.controlador.cargar(self.MainWindow)
-        self.controlador.iniciar_juego()
+        self.controlador.startGame(self.modelo.dificultad)
 
     def mostrar_sobre_nosotros(self):
         from controllers.AboutUsController import AboutUsController

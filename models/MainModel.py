@@ -13,4 +13,9 @@ def print_debug(message):
 
 class MainModel:
     def __init__(self) -> None:
-        print_debug("Me han instanciado pero aún no estoy implementado.")
+        self.dificultades = [
+            "Facil",
+            "Medio",
+            "Dificil",
+        ]
+        self.dificultad = None
