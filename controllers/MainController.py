@@ -46,7 +46,8 @@ class MainController:
         #     "./views/assets/gui/sidebar_image.png")
         # self.ui.lbl_side_image.setPixmap(QtGui.QPixmap(image_path))
         print_debug(
-            "cargar_imagenes -> La funcion de cargar imagenes aún no está implementada")
+            "cargar_imagenes -> La funcion de cargar imagenes aún no está implementada"
+        )
 
     def mostrar(self, main_window):
         self.cargar(main_window)
@@ -85,11 +86,13 @@ class MainController:
 
     def iniciar(self):
         from controllers.GameController import GameController
+
         self.controlador = GameController()
         self.controlador.cargar(self.MainWindow)
         self.controlador.iniciar_juego()
 
     def mostrar_sobre_nosotros(self):
         from controllers.AboutUsController import AboutUsController
+
         self.AboutUsController = AboutUsController()
         self.AboutUsController.mostrar(self.MainWindow)
