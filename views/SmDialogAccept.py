@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/media/ihuntgore/Users/Juan/Documents/proyectos/ia/Proyecto-2-IA-2024-I/views/SmDialogAccept.ui'
+# Form implementation generated from reading ui file '/home/ihuntgore/Escritorio/proyectos/ia/Proyecto-2-IA-2024-I/views/SmDialogAccept.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.10
 #
