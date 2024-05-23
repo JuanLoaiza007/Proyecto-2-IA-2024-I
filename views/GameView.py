@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/media/ihuntgore/Users/Juan/Documents/proyectos/ia/Proyecto-2-IA-2024-I/views/GameView.ui'
+# Form implementation generated from reading ui file '/home/ihuntgore/Escritorio/proyectos/ia/Proyecto-2-IA-2024-I/views/GameView.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.10
 #
@@ -174,13 +174,11 @@ class Ui_MainWindow(object):
 "}\n"
 "\n"
 "/* Buttons */\n"
-"QPushButton {\n"
+".ficha {\n"
 "  font-weight: 500;\n"
-"  color: white;\n"
-"  background-color: gray;\n"
-"  padding: 6px 12px;\n"
+"  padding: 0px 0px;\n"
 "  font-size: 18px;\n"
-"  border-radius: 10px;\n"
+"  border-radius: 0px;\n"
 "  border: 1px solid;\n"
 "}\n"
 "\n"
@@ -468,42 +466,20 @@ class Ui_MainWindow(object):
         self.body.setObjectName("body")
         self.gridLayout = QtWidgets.QGridLayout(self.body)
         self.gridLayout.setObjectName("gridLayout")
-        self.table_mapa = QtWidgets.QTableWidget(self.body)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.table_mapa.sizePolicy().hasHeightForWidth())
-        self.table_mapa.setSizePolicy(sizePolicy)
-        self.table_mapa.setMinimumSize(QtCore.QSize(460, 460))
-        self.table_mapa.setMaximumSize(QtCore.QSize(460, 460))
-        self.table_mapa.setSizeIncrement(QtCore.QSize(0, 0))
-        font = QtGui.QFont()
-        font.setPointSize(1)
-        self.table_mapa.setFont(font)
-        self.table_mapa.viewport().setProperty("cursor", QtGui.QCursor(QtCore.Qt.ArrowCursor))
-        self.table_mapa.setFocusPolicy(QtCore.Qt.NoFocus)
-        self.table_mapa.setFrameShape(QtWidgets.QFrame.StyledPanel)
-        self.table_mapa.setFrameShadow(QtWidgets.QFrame.Plain)
-        self.table_mapa.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-        self.table_mapa.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-        self.table_mapa.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContentsOnFirstShow)
-        self.table_mapa.setAutoScroll(False)
-        self.table_mapa.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
-        self.table_mapa.setTabKeyNavigation(False)
-        self.table_mapa.setProperty("showDropIndicator", False)
-        self.table_mapa.setDragDropOverwriteMode(False)
-        self.table_mapa.setSelectionMode(QtWidgets.QAbstractItemView.NoSelection)
-        self.table_mapa.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectItems)
-        self.table_mapa.setTextElideMode(QtCore.Qt.ElideNone)
-        self.table_mapa.setShowGrid(True)
-        self.table_mapa.setWordWrap(True)
-        self.table_mapa.setCornerButtonEnabled(False)
-        self.table_mapa.setRowCount(0)
-        self.table_mapa.setObjectName("table_mapa")
-        self.table_mapa.setColumnCount(0)
-        self.table_mapa.horizontalHeader().setVisible(True)
-        self.table_mapa.horizontalHeader().setSortIndicatorShown(False)
-        self.gridLayout.addWidget(self.table_mapa, 0, 0, 1, 1)
+        self.mainFrame = QtWidgets.QFrame(self.body)
+        self.mainFrame.setMaximumSize(QtCore.QSize(460, 460))
+        self.mainFrame.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.mainFrame.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.mainFrame.setObjectName("mainFrame")
+        self.horizontalLayout = QtWidgets.QHBoxLayout(self.mainFrame)
+        self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
+        self.horizontalLayout.setSpacing(0)
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        self.mainGridLayout = QtWidgets.QGridLayout()
+        self.mainGridLayout.setSpacing(0)
+        self.mainGridLayout.setObjectName("mainGridLayout")
+        self.horizontalLayout.addLayout(self.mainGridLayout)
+        self.gridLayout.addWidget(self.mainFrame, 0, 0, 1, 1)
         self.verticalLayout.addWidget(self.body)
         self.footer = QtWidgets.QFrame(self.centralwidget)
         self.footer.setMinimumSize(QtCore.QSize(800, 50))
@@ -519,11 +495,11 @@ class Ui_MainWindow(object):
         self.btn_volver.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.btn_volver.setObjectName("btn_volver")
         self.horizontalLayout_4.addWidget(self.btn_volver)
-        self.lbl_estado_agente = QtWidgets.QLabel(self.footer)
-        self.lbl_estado_agente.setMinimumSize(QtCore.QSize(0, 34))
-        self.lbl_estado_agente.setAlignment(QtCore.Qt.AlignCenter)
-        self.lbl_estado_agente.setObjectName("lbl_estado_agente")
-        self.horizontalLayout_4.addWidget(self.lbl_estado_agente)
+        self.lbl_estado_juego = QtWidgets.QLabel(self.footer)
+        self.lbl_estado_juego.setMinimumSize(QtCore.QSize(0, 34))
+        self.lbl_estado_juego.setAlignment(QtCore.Qt.AlignCenter)
+        self.lbl_estado_juego.setObjectName("lbl_estado_juego")
+        self.horizontalLayout_4.addWidget(self.lbl_estado_juego)
         self.btn_ver_reporte = QtWidgets.QPushButton(self.footer)
         self.btn_ver_reporte.setMinimumSize(QtCore.QSize(145, 34))
         self.btn_ver_reporte.setMaximumSize(QtCore.QSize(145, 34))
@@ -544,11 +520,11 @@ class Ui_MainWindow(object):
         self.lbl_titulo.setProperty("class", _translate("MainWindow", "h1 color-success"))
         self.footer.setProperty("class", _translate("MainWindow", "background-success"))
         self.btn_volver.setText(_translate("MainWindow", "Volver"))
-        self.btn_volver.setProperty("class", _translate("MainWindow", "btn-outline-dark h6"))
-        self.lbl_estado_agente.setText(_translate("MainWindow", "text_sample"))
-        self.lbl_estado_agente.setProperty("class", _translate("MainWindow", "h5 color-white"))
+        self.btn_volver.setProperty("class", _translate("MainWindow", "btn btn-outline-dark h6"))
+        self.lbl_estado_juego.setText(_translate("MainWindow", "text_sample"))
+        self.lbl_estado_juego.setProperty("class", _translate("MainWindow", "h5 color-white"))
         self.btn_ver_reporte.setText(_translate("MainWindow", "Ver reporte"))
-        self.btn_ver_reporte.setProperty("class", _translate("MainWindow", "btn-outline-danger h6"))
+        self.btn_ver_reporte.setProperty("class", _translate("MainWindow", "btn btn-outline-danger h6"))
 
 
 if __name__ == "__main__":

@@ -9,7 +9,7 @@ def print_debug(message):
         print(new_message)
 
 
-class iStopWatch():
+class iStopWatch:
     def __init__(self):
         self.start_time = time.time()
         self.end_time = None
@@ -18,5 +18,4 @@ class iStopWatch():
     def end(self):
         self.end_time = time.time()
         total_time = self.end_time - self.start_time
-        print_debug(
-            "instance end after {:.2f} seconds!".format(total_time))
+        print_debug("instance end after {:.2f} seconds!".format(total_time))
