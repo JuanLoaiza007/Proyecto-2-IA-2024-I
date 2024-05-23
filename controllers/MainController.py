@@ -42,16 +42,18 @@ class MainController:
         self.MainWindow.setMinimumSize(self.minSizeHint)
         self.MainWindow.setMaximumSize(self.maxSizeHint)
 
-    def cargar_imagenes(self):
-        # image_path = os.path.abspath(
-        #     "./views/assets/gui/sidebar_image.png")
-        # self.ui.lbl_side_image.setPixmap(QtGui.QPixmap(image_path))
-        print_debug(
-            "cargar_imagenes -> La funcion de cargar imagenes aún no está implementada"
+    def cargar_imagenes(self, difficulty="Facil"):
+        image_name = (
+            "sidebar_3"
+            if difficulty == "Dificil"
+            else "sidebar_2" if difficulty == "Medio" else "sidebar_1"
         )
+        image_path = os.path.abspath(f"./assets/images/sidebar/{image_name}.png")
+        self.ui.lbl_side_image.setPixmap(QtGui.QPixmap(image_path))
 
     def cambiar_dificultad(self):
         self.modelo.dificultad = self.ui.box_dificultad.currentText()
+        self.cargar_imagenes(self.modelo.dificultad)
 
     def mostrar(self, main_window):
         self.cargar(main_window)
