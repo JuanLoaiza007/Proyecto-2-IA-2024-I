@@ -29,5 +29,6 @@ class AboutUsController:
 
     def volver(self):
         from controllers.MainController import MainController
+
         self.MainController = MainController()
         self.MainController.mostrar(self.MainWindow)
