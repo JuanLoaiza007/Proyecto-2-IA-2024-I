@@ -59,10 +59,10 @@ class GameController:
         self.machine_can_move = True
 
         self.buttons = []
-        self.createBoard(len(self.modelo.tablero),
-                         len(self.modelo.tablero[0]))
+        self.createBoard(len(self.modelo.tablero), len(self.modelo.tablero[0]))
         self.paintBoard(self.modelo.tablero)
         self.updateGameState()
+        self.searchAndDisableActualPosition()
 
         # Hilo de procesamiento
         self.hilo_procesamiento: WorkerThread = None
@@ -71,7 +71,7 @@ class GameController:
         self.MainWindow.destroyed.connect(self.cerrarVentana)
 
         # Listeners
-        self.ui.btn_ver_reporte.clicked.connect(self.mostrarReporte)
+        self.ui.btn_ver_reporte.clicked.connect(self.showReport)
         self.ui.btn_volver.clicked.connect(self.volver)
 
     def cerrarProcesamientos(self):
@@ -81,7 +81,8 @@ class GameController:
 
         except RuntimeError:
             print_debug(
-                "cerrar_procesamiento() -> He absorbido un problema con los hilos")
+                "cerrar_procesamiento() -> He absorbido un problema con los hilos"
+            )
 
     def cerrarVentana(self):
         self.cerrarProcesamientos()
@@ -101,14 +102,16 @@ class GameController:
             for j in range(cols):
                 button = QtWidgets.QPushButton(self.ui.mainFrame)
                 button.setSizePolicy(
-                    QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+                    QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding
+                )
                 button.setIconSize(icon_size)
                 button.setCursor(QtGui.QCursor(Qt.PointingHandCursor))
                 button.setObjectName(f"btn_{i}-{j}")
-                button.setProperty("class", _translate(
-                    "MainWindow", "ficha"))
+                button.setProperty("class", _translate("MainWindow", "ficha"))
                 button.clicked.connect(
-                    lambda checked, button=button: self.handle_button_click(button))
+                    lambda checked, button=button: self.handleButtonClick(
+                        button)
+                )
                 self.ui.mainGridLayout.addWidget(button, i, j)
                 row_buttons.append(button)
             self.buttons.append(row_buttons)
@@ -152,14 +155,16 @@ class GameController:
         self.human_can_move = self.modelo.canMoveFrom(
             self.modelo.searchCoords("Human"))
         self.machine_can_move = self.modelo.canMoveFrom(
-            self.modelo.searchCoords("Machine"))
+            self.modelo.searchCoords("Machine")
+        )
 
-        quienJuega = "Maquina" if self.deberiaJugarLaMaquina() else "Humano"
+        quienJuega = "Maquina" if self.shouldPlayMachine() else "Humano"
         puntosMaquina = self.modelo.countPoints("Machine")
         puntosHumano = self.modelo.countPoints("Human")
 
         self.ui.lbl_estado_juego.setText(
-            f"Turno: {quienJuega} | Maquina: {puntosMaquina} | Humano: {puntosHumano}")
+            f"Turno: {quienJuega} | Maquina: {puntosMaquina} | Humano: {puntosHumano}"
+        )
 
         if not (self.human_can_move) and not (self.machine_can_move):
             iTimerPyQt5.iniciar(200)
@@ -173,18 +178,27 @@ class GameController:
             Dialog.mostrar_dialogo(
                 "Resultados", f"El juego ha terminado, {resultado}")
 
-    def disable_button(self, i, j):
+    def disableButton(self, i, j):
         self.buttons[i][j].setCursor(QtGui.QCursor(Qt.ArrowCursor))
         self.buttons[i][j].clicked.disconnect()
 
-    def deberiaJugarLaMaquina(self):
+    def searchAndDisableActualPosition(self):
+        humanCoords = self.modelo.searchCoords("Human")
+        machineCoords = self.modelo.searchCoords("Machine")
+
+        self.disableButton(humanCoords[0], humanCoords[1])
+        self.disableButton(machineCoords[0], machineCoords[1])
+
+    def shouldPlayMachine(self):
         """
         Funcion que determina si la maquina debe jugar o no.
         ADVERTENCIA: Debe haber actualizado las variables human_can_move y machine_can_move antes de llamar esta funcion.
         """
-        return (self.machineTurn and self.machine_can_move) or (not self.machineTurn and not (self.human_can_move))
+        return (self.machineTurn and self.machine_can_move) or (
+            not self.machineTurn and not (self.human_can_move)
+        )
 
-    def handle_button_click(self, button):
+    def handleButtonClick(self, button):
         machineCoords = self.modelo.searchCoords("Machine")
         humanCoords = self.modelo.searchCoords("Human")
 
@@ -194,21 +208,21 @@ class GameController:
         old_pos = None
         new_pos = (i, j)
 
-        if self.deberiaJugarLaMaquina():
+        if self.shouldPlayMachine():
             old_pos = self.modelo.searchCoords("Machine")
         else:
             old_pos = self.modelo.searchCoords("Human")
 
-        if (self.modelo.isValidMove(old_pos, new_pos)):
+        if self.modelo.isValidMove(old_pos, new_pos):
 
-            if self.deberiaJugarLaMaquina():
+            if self.shouldPlayMachine():
                 self.modelo.tablero[i][j] = 1
                 self.modelo.tablero[machineCoords[0]][machineCoords[1]] = 3
             else:
                 self.modelo.tablero[i][j] = 2
                 self.modelo.tablero[humanCoords[0]][humanCoords[1]] = 4
 
-            self.disable_button(i, j)
+            self.disableButton(i, j)
             self.machineTurn = not self.machineTurn
 
             self.modelo.printTablero()
@@ -222,56 +236,56 @@ class GameController:
         self.MainWindow.show()
 
     def mostrarDialogo(self, titulo, mensaje):
-        self.block_focus()
+        self.blockFocus()
         Dialog.mostrar_dialogo(titulo, mensaje)
-        self.unblock_focus()
+        self.unblockFocus()
 
-    def block_window_size(self):
+    def blockWindowSize(self):
         self.MainWindow.setFixedSize(self.MainWindow.size())
 
     def restartWindowSize(self):
         self.MainWindow.setMinimumSize(self.minSizeHint)
         self.MainWindow.setMaximumSize(self.maxSizeHint)
 
-    def block_focus(self):
+    def blockFocus(self):
         """
         Funcion intuitiva para mostrar que la ventana principal NO es la que esta recibiendo eventos, ayuda a mostrar que el flujo de trabajo esta ocurriendo en otra ventana.
         """
         self.MainWindow.setEnabled(False)
         self.ui.centralwidget.setEnabled(False)
         self.ui.centralwidget.setVisible(False)
-        self.block_window_size()
+        self.blockWindowSize()
 
-    def little_block_focus(self):
+    def littleBlockFocus(self):
         """
         Funcion intuitiva para mostrar que la ventana principal esta procesando sin embargo el flujo de trabajo esta actualmente en ella.
         """
         self.MainWindow.setEnabled(False)
         self.ui.centralwidget.setEnabled(False)
-        self.block_window_size()
+        self.blockWindowSize()
 
-    def unblock_focus(self):
+    def unblockFocus(self):
         """
-        Funcion intuitiva para revertir block_focus() y little_block_focus(), muestra que el flujo de trabajo esta ocurriendo en la ventana principal y habilita los eventos.
+        Funcion intuitiva para revertir blockFocus() y littleBlockFocus(), muestra que el flujo de trabajo esta ocurriendo en la ventana principal y habilita los eventos.
         """
         self.restartWindowSize()
         self.MainWindow.setEnabled(True)
         self.ui.centralwidget.setEnabled(True)
         self.ui.centralwidget.setVisible(True)
 
-    def habilitar_botones_footer(self):
+    def enableFooterButtons(self):
         self.ui.btn_volver.setVisible(True)
         self.ui.btn_volver.setEnabled(True)
         self.ui.btn_ver_reporte.setVisible(True)
         self.ui.btn_ver_reporte.setEnabled(True)
 
-    def deshabilitar_botones_footer(self):
+    def disableFooterButtons(self):
         self.ui.btn_volver.setVisible(False)
         self.ui.btn_volver.setEnabled(False)
         self.ui.btn_ver_reporte.setVisible(False)
         self.ui.btn_ver_reporte.setEnabled(False)
 
-    def iniciar_juego(self):
+    def startGame(self):
 
         iTimerPyQt5.iniciar(100)
 
@@ -282,20 +296,20 @@ class GameController:
         # Uso de hilos de procesamiento
 
         # # Hilo para mantener la interfaz atenta
-        # self.hilo_procesamiento = WorkerThread(self.modelo.iniciar_juego)
+        # self.hilo_procesamiento = WorkerThread(self.modelo.startGame)
         # # Eventos que requieren los calculos del hilo
         # self.hilo_procesamiento.finished.connect(
         #     self.tarea_a_ejecutar)
         # # Inicia las tareas del hilo de la funcion run()
         # self.hilo_procesamiento.start()
 
-    def mostrarReporte(self):
-        print_debug(
-            "mostrarReporte() -> Boton de mostrar reporte presionado!!!")
+    def showReport(self):
+        print_debug("showReport() -> Boton de mostrar reporte presionado!!!")
 
     def volver(self):
         self.cerrarProcesamientos()
         from controllers.MainController import MainController as NewController
+
         self.NewController = NewController()
         self.NewController.cargar(self.MainWindow)
         return None
