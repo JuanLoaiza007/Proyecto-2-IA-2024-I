@@ -593,7 +593,7 @@ QLabel {
       </property>
       <layout class="QHBoxLayout" name="horizontalLayout_4">
        <item>
-        <widget class="QPushButton" name="btn_volver">
+        <widget class="QLabel" name="lbl_right_side">
          <property name="minimumSize">
           <size>
            <width>145</width>
@@ -606,14 +606,8 @@ QLabel {
            <height>34</height>
           </size>
          </property>
-         <property name="cursor">
-          <cursorShape>PointingHandCursor</cursorShape>
-         </property>
          <property name="text">
-          <string>Volver</string>
-         </property>
-         <property name="class" stdset="0">
-          <string>btn btn-outline-dark h6</string>
+          <string/>
          </property>
         </widget>
        </item>
@@ -637,7 +631,7 @@ QLabel {
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="btn_ver_reporte">
+        <widget class="QPushButton" name="btn_volver">
          <property name="minimumSize">
           <size>
            <width>145</width>
@@ -654,10 +648,10 @@ QLabel {
           <cursorShape>PointingHandCursor</cursorShape>
          </property>
          <property name="text">
-          <string>Ver reporte</string>
+          <string>Volver</string>
          </property>
          <property name="class" stdset="0">
-          <string>btn btn-outline-danger h6</string>
+          <string>btn btn-outline-dark h6</string>
          </property>
         </widget>
        </item>

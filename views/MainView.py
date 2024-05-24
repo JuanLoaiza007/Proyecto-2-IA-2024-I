@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/media/ihuntgore/Users/Juan/Documents/proyectos/ia/Proyecto-2-IA-2024-I/views/MainView.ui'
+# Form implementation generated from reading ui file '/home/ihuntgore/Escritorio/proyectos/ia/Proyecto-2-IA-2024-I/views/MainView.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.10
 #
@@ -508,9 +508,6 @@ class Ui_MainWindow(object):
         self.box_dificultad.setMaximumSize(QtCore.QSize(400, 32))
         self.box_dificultad.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.box_dificultad.setObjectName("box_dificultad")
-        self.box_dificultad.addItem("")
-        self.box_dificultad.addItem("")
-        self.box_dificultad.addItem("")
         self.verticalLayout_4.addWidget(self.box_dificultad)
         self.frame = QtWidgets.QFrame(self.frame_2)
         self.frame.setMaximumSize(QtCore.QSize(310, 16777215))
@@ -601,9 +598,6 @@ class Ui_MainWindow(object):
         self.lbl_dificultad.setText(_translate("MainWindow", "Selecciona la dificultad:"))
         self.lbl_dificultad.setProperty("class", _translate("MainWindow", "h5"))
         self.box_dificultad.setProperty("class", _translate("MainWindow", "h6"))
-        self.box_dificultad.setItemText(0, _translate("MainWindow", "Facil"))
-        self.box_dificultad.setItemText(1, _translate("MainWindow", "Medio"))
-        self.box_dificultad.setItemText(2, _translate("MainWindow", "Dificil"))
         self.btn_iniciar.setText(_translate("MainWindow", "Iniciar"))
         self.btn_iniciar.setProperty("class", _translate("MainWindow", "btn-success h6"))
         self.lbl_side_image.setProperty("class", _translate("MainWindow", "background-light"))

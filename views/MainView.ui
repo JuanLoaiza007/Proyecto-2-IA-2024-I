@@ -679,21 +679,6 @@ QLabel {
                   <property name="class" stdset="0">
                    <string>h6</string>
                   </property>
-                  <item>
-                   <property name="text">
-                    <string>Facil</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>Medio</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>Dificil</string>
-                   </property>
-                  </item>
                  </widget>
                 </item>
                 <item alignment="Qt::AlignLeft">
