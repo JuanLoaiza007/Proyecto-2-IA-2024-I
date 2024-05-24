@@ -74,9 +74,9 @@ class GameController:
 
         # Listeners
         self.ui.btn_volver.clicked.connect(self.volver)
-        
+
         iTimerPyQt5.iniciar(1000)
-        self.move_machine()        
+        self.move_machine()
 
     def cerrarProcesamientos(self):
         try:
@@ -156,10 +156,10 @@ class GameController:
         self.machine_can_move = self.modelo.canMoveFrom(
             self.modelo.searchCoords("Machine")
         )
-        
+
         x, y = self.modelo.searchCoords("Human")
         estado = Estado(x, y)
-        
+
         humanUtility = Problema.utilidad(estado)
         print_debug(f"updateGameState() -> {humanUtility}")
 
@@ -183,8 +183,11 @@ class GameController:
             Dialog.mostrar_dialogo("Resultados", f"El juego ha terminado, {resultado}")
 
     def disableButton(self, i, j):
-        self.buttons[i][j].setCursor(QtGui.QCursor(Qt.ArrowCursor))
-        self.buttons[i][j].clicked.disconnect()
+        try:
+            self.buttons[i][j].setCursor(QtGui.QCursor(Qt.ArrowCursor))
+            self.buttons[i][j].clicked.disconnect()
+        except Exception as e:
+            print_debug(f"disableButton() -> {e}")
 
     def searchAndDisableActualPosition(self):
         humanCoords = self.modelo.searchCoords("Human")
@@ -201,18 +204,18 @@ class GameController:
         return (self.machineTurn and self.machine_can_move) or (
             not self.machineTurn and not (self.human_can_move)
         )
-        
+
     def move_machine(self):
-        '''
+        """
         Funcion que realiza el movimiento de la máquina
-        '''
+        """
         old_pos_machine = self.modelo.searchCoords("Machine")
         possible_moves = self.modelo.generateHorseMoves(old_pos_machine)
-        
+
         if possible_moves:
-            '''
+            """
             De momento, los movimientos se realizan aleatoriamente
-            '''
+            """
             new_pos_machine = random.choice(possible_moves)
             self.modelo.tablero[new_pos_machine[0]][new_pos_machine[1]] = 1
             self.modelo.tablero[old_pos_machine[0]][old_pos_machine[1]] = 3
@@ -222,16 +225,16 @@ class GameController:
             self.paintBoard(self.modelo.tablero)
             self.updateGameState()
         else:
-            print_debug("La máquina no tiene movimientos válidos")          
+            print_debug("La máquina no tiene movimientos válidos")
 
     def handleButtonClick(self, button):
         i = int(button.objectName().split("_")[1].split("-")[0])
         j = int(button.objectName().split("-")[1])
-        
+
         old_pos_human = self.modelo.searchCoords("Human")
         new_pos_human = (i, j)
         print_debug(f"handle_button_click() -> {old_pos_human} -> {new_pos_human}")
-        
+
         if self.modelo.isValidMove(old_pos_human, new_pos_human):
             # Movimiento del jugador humano
             self.modelo.tablero[i][j] = 2
@@ -240,13 +243,13 @@ class GameController:
 
             self.modelo.printTablero()
             self.paintBoard(self.modelo.tablero)
-            self.updateGameState()     
-            
+            self.updateGameState()
+
             # Movimiento de la máquina
             iTimerPyQt5.iniciar(1000)
             self.move_machine()
         else:
-            print_debug("Este movimiento no es válido")  
+            print_debug("Este movimiento no es válido")
 
     def mostrar(self, main_window):
         self.cargar(main_window)

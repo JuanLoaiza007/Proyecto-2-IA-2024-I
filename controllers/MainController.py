@@ -97,8 +97,11 @@ class MainController:
             self.mostrar_dialogo("Error", f"La dificultad es {self.modelo.dificultad}")
             return None
         self.controlador = GameController()
-        self.controlador.cargar(self.MainWindow)
-        self.controlador.startGame(self.modelo.dificultad)
+        try:
+            self.controlador.cargar(self.MainWindow)
+            self.controlador.startGame(self.modelo.dificultad)
+        except Exception as e:
+            print_debug(f"iniciar() -> {e}")
 
     def mostrar_sobre_nosotros(self):
         from controllers.AboutUsController import AboutUsController

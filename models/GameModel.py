@@ -26,8 +26,8 @@ class GameModel:
 
     def setInitialRandomPositionToPlayers(self):
         filas = len(self.tablero)
-
         columnas = len(self.tablero[0])
+
         pos1 = (random.randint(0, filas - 1), random.randint(0, columnas - 1))
         pos2 = pos1
 
