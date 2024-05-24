@@ -75,7 +75,7 @@ class GameController:
         self.ui.btn_volver.clicked.connect(self.volver)
         
         iTimerPyQt5.iniciar(1000)
-        self.move_machine()
+        self.move_machine()        
 
     def cerrarProcesamientos(self):
         try:
@@ -191,9 +191,10 @@ class GameController:
         Funcion que determina si la maquina debe jugar o no.
         ADVERTENCIA: Debe haber actualizado las variables human_can_move y machine_can_move antes de llamar esta funcion.
         """
+        return (self.machineTurn and self.machine_can_move) or (
+            not self.machineTurn and not (self.human_can_move)
+        )
         
-        return (self.machineTurn and self.machine_can_move) or (not self.machineTurn and not (self.human_can_move))
-    
     def move_machine(self):
         '''
         Funcion que realiza el movimiento de la máquina
@@ -208,15 +209,15 @@ class GameController:
             new_pos_machine = random.choice(possible_moves)
             self.modelo.tablero[new_pos_machine[0]][new_pos_machine[1]] = 1
             self.modelo.tablero[old_pos_machine[0]][old_pos_machine[1]] = 3
-            self.disable_button(new_pos_machine[0], new_pos_machine[1])
+            self.disableButton(new_pos_machine[0], new_pos_machine[1])
 
             self.modelo.printTablero()
             self.paintBoard(self.modelo.tablero)
             self.updateGameState()
         else:
-            print_debug("La máquina no tiene movimientos válidos")    
+            print_debug("La máquina no tiene movimientos válidos")          
 
-    def handle_button_click(self, button):        
+    def handleButtonClick(self, button):
         i = int(button.objectName().split("_")[1].split("-")[0])
         j = int(button.objectName().split("-")[1])
         
@@ -228,7 +229,7 @@ class GameController:
             # Movimiento del jugador humano
             self.modelo.tablero[i][j] = 2
             self.modelo.tablero[old_pos_human[0]][old_pos_human[1]] = 4
-            self.disable_button(i, j)
+            self.disableButton(i, j)
 
             self.modelo.printTablero()
             self.paintBoard(self.modelo.tablero)
@@ -238,7 +239,7 @@ class GameController:
             iTimerPyQt5.iniciar(1000)
             self.move_machine()
         else:
-            print_debug("Este movimiento no es válido")            
+            print_debug("Este movimiento no es válido")  
 
     def mostrar(self, main_window):
         self.cargar(main_window)
