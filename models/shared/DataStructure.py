@@ -2,6 +2,8 @@
 from queue import Queue
 import json
 import copy
+import random
+from ..GameModel import GameModel
 
 debug = False
 
@@ -56,7 +58,7 @@ class Estado:
         """
         self.x = x
         self.y = y
-        
+
     def get_coordenadas(self):
         return [self.x, self.y]       
 
@@ -72,10 +74,10 @@ class Estado:
         """
         a_string = "{} {} {}".format(
             str(self.x), str(self.y))
-        return a_string     
+        return a_string
 
 class Problema:
-    def __init__(self, estado_inicial: Estado, matriz, tablero):
+    def __init__(self, estado_inicial: Estado, jugador1: str, jugador2: str):
         """
         Inicializa un nuevo problema
 
@@ -88,22 +90,67 @@ class Problema:
             Las coordenadas en string.
         """
         self.estado_inicial = estado_inicial
-        self.matriz = matriz
-        self.tablero = tablero    
+        self.jugador1 = jugador1
+        self.jugador2 = jugador2
 
     def __str__(self) -> str:
         mensaje = "Estado inicial: {} -> Estado objetivo: {1}".format(
-            self.estado_inicial, self.estado_objetivo)
+            self.estado_inicial, self.jugador1, self.jugador2)
         return mensaje
 
     def get_estado_inicial(self) -> Estado:
         return self.estado_inicial
-
-    def get_matriz(self):
-        return self.matriz
     
-    def get_tablero(self):
-        return self.tablero
+    def get_jugador1(self) -> str:
+        return self.jugador1
+    
+    def get_jugador2(self) -> str:
+        return self.jugador2
+    
+    def movimientos_jugador(estado: Estado):
+        return GameModel.generateHorseMoves(estado)
+    
+    def nuevo_estado(self, estado: Estado) -> Estado:
+        return random.choice(self.movimientos_jugador(estado))
+    
+    def es_estado_objetivo(self, estado: Estado):
+        if self.movimientos_jugador(estado) == []:
+            return True
+        else:
+            return False
+        
+    def utilidad(estado: Estado) -> int:
+        """
+        Evalúa un estado y devuelve un valor numérico que representa 
+        qué tan bueno es ese estado para el jugador.
+
+        Args:
+            estado (Estado): El estado a evaluar.
+
+        Returns:
+            int: Valor numérico de la evaluación del estado.
+        """   
+        x, y = estado.get_coordenadas()
+        return x + y
+
+
+    '''    def resultado(self, estado: Estado, operador: Operador) -> Estado:
+        """
+        Genera un nuevo estado aplicando un operador sobre el actual.
+
+        Args:
+            estado (Estado): El estado actual.
+            operador (Operador): El operador que se quiere aplicar al estado.
+
+        Returns:
+            nuevo_estado (Estado): Un nuevo estado que surge de aplicar el operador al estado actual.
+            None si el nuevo estado no cumple con las reglas de juego.
+        """
+        nuevo_estado = Estado(estado.x + operador.dx, estado.y + operador.dy)
+        if self.es_estado_valido(nuevo_estado):
+            return nuevo_estado
+        else:
+            return None'''
 
 
 class Nodo:
@@ -137,9 +184,6 @@ class Nodo:
         self.operador: Operador = None
         self.profundidad: int = 0
         self.costo_acumulado: int = 0
-
-    def __lt__(self, other):
-        return self.costo_acumulado < other.costo_acumulado
 
     def __str__(self) -> str:
         padre = None
@@ -182,24 +226,9 @@ class Nodo:
     def set_costo_acumulado(self, costo_acumulado: int):
         self.costo_acumulado = costo_acumulado
 
-    def es_meta(self) -> bool:
-        return self.problema.es_estado_objetivo()
-
     def calcular_heuristica(self):
-        '''        # Calcula la heurística del nodo actual basada en la distancia de Manhattan dividida por
-
-        estado_actual = self.get_estado()
-        estado_objetivo = self.problema.get_estado_objetivo()
-
-        # Calcula la distancia de Manhattan
-        distancia_manhattan = abs(
-            estado_actual.x - estado_objetivo.x) + abs(estado_actual.y - estado_objetivo.y)
-
-        # Divide la distancia de Manhattan por 2
-        heuristica = distancia_manhattan / 2
-
-        return heuristica'''
         return 0
+
     def expandir(self):
         # esto no se si se utilizara
         """
@@ -214,12 +243,12 @@ class Nodo:
         # Limpiar hijos por si las moscas
         self.hijos = []
 
-        '''        operadores = self.problema.generar_operadores()
+        #operadores = self.problema.generar_operadores()
 
-        if len(operadores) == 0:
-            return self.hijos
+        #if len(operadores) == 0:
+            #return self.hijos
 
-        for operador in operadores:
+        '''        for operador in operadores:
             # === Creacion y configuracion del nuevo estado ===
             # Creo un nuevo estado despues de aplicar el operador
             nuevo_estado = self.problema.resultado(
