@@ -8,6 +8,7 @@ from models.GameModel import GameModel
 from models.shared.tools.iTimerPyQt5 import iTimerPyQt5
 from models.shared.tools.Dialog import Dialog
 from PyQt5.QtCore import QThread
+import random
 
 debug = False
 
@@ -46,7 +47,7 @@ class GameController:
 
     # Funcion para inicializar (general)
     def cargar(self, main_window):
-        self.machineTurn = True
+        self.machineTurn = False
         self.modelo = GameModel()
         self.MainWindow = main_window
         self.minSizeHint = QSize(800, 600)
@@ -72,6 +73,9 @@ class GameController:
 
         # Listeners
         self.ui.btn_volver.clicked.connect(self.volver)
+        
+        iTimerPyQt5.iniciar(1000)
+        self.move_machine()        
 
     def cerrarProcesamientos(self):
         try:
@@ -190,39 +194,52 @@ class GameController:
         return (self.machineTurn and self.machine_can_move) or (
             not self.machineTurn and not (self.human_can_move)
         )
-
-    def handleButtonClick(self, button):
-        machineCoords = self.modelo.searchCoords("Machine")
-        humanCoords = self.modelo.searchCoords("Human")
-
-        i = int(button.objectName().split("_")[1].split("-")[0])
-        j = int(button.objectName().split("-")[1])
-
-        old_pos = None
-        new_pos = (i, j)
-
-        if self.shouldPlayMachine():
-            old_pos = self.modelo.searchCoords("Machine")
-        else:
-            old_pos = self.modelo.searchCoords("Human")
-
-        if self.modelo.isValidMove(old_pos, new_pos):
-
-            if self.shouldPlayMachine():
-                self.modelo.tablero[i][j] = 1
-                self.modelo.tablero[machineCoords[0]][machineCoords[1]] = 3
-            else:
-                self.modelo.tablero[i][j] = 2
-                self.modelo.tablero[humanCoords[0]][humanCoords[1]] = 4
-
-            self.disableButton(i, j)
-            self.machineTurn = not self.machineTurn
+        
+    def move_machine(self):
+        '''
+        Funcion que realiza el movimiento de la máquina
+        '''
+        old_pos_machine = self.modelo.searchCoords("Machine")
+        possible_moves = self.modelo.generateHorseMoves(old_pos_machine)
+        
+        if possible_moves:
+            '''
+            De momento, los movimientos se realizan aleatoriamente
+            '''
+            new_pos_machine = random.choice(possible_moves)
+            self.modelo.tablero[new_pos_machine[0]][new_pos_machine[1]] = 1
+            self.modelo.tablero[old_pos_machine[0]][old_pos_machine[1]] = 3
+            self.disableButton(new_pos_machine[0], new_pos_machine[1])
 
             self.modelo.printTablero()
             self.paintBoard(self.modelo.tablero)
             self.updateGameState()
         else:
-            print_debug("Este movimiento no es válido")
+            print_debug("La máquina no tiene movimientos válidos")          
+
+    def handleButtonClick(self, button):
+        i = int(button.objectName().split("_")[1].split("-")[0])
+        j = int(button.objectName().split("-")[1])
+        
+        old_pos_human = self.modelo.searchCoords("Human")
+        new_pos_human = (i, j)
+        print_debug(f"handle_button_click() -> {old_pos_human} -> {new_pos_human}")
+        
+        if self.modelo.isValidMove(old_pos_human, new_pos_human):
+            # Movimiento del jugador humano
+            self.modelo.tablero[i][j] = 2
+            self.modelo.tablero[old_pos_human[0]][old_pos_human[1]] = 4
+            self.disableButton(i, j)
+
+            self.modelo.printTablero()
+            self.paintBoard(self.modelo.tablero)
+            self.updateGameState()     
+            
+            # Movimiento de la máquina
+            iTimerPyQt5.iniciar(1000)
+            self.move_machine()
+        else:
+            print_debug("Este movimiento no es válido")  
 
     def mostrar(self, main_window):
         self.cargar(main_window)
