@@ -57,9 +57,12 @@ class GameController:
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self.MainWindow)
 
+        #  Configuracion de los jugadores
         self.human_can_move = True
         self.machine_can_move = True
+        self.machineTurn = True
 
+        # Configuracion del tablero de juego
         self.buttons = []
         self.createBoard(len(self.modelo.tablero), len(self.modelo.tablero[0]))
         self.paintBoard(self.modelo.tablero)
@@ -74,9 +77,6 @@ class GameController:
 
         # Listeners
         self.ui.btn_volver.clicked.connect(self.volver)
-
-        iTimerPyQt5.iniciar(1000)
-        self.move_machine()
 
     def cerrarProcesamientos(self):
         try:
@@ -151,6 +151,13 @@ class GameController:
                         self.buttons[i][j].setStyleSheet("background-color: white;")
         print("\n\n\n")
 
+    def updateGame(self):
+        self.machineTurn = not self.machineTurn  # Toggle machineTurn
+        self.modelo.printTablero()
+        self.paintBoard(self.modelo.tablero)
+        self.updateGameState()  # Update gamestate
+        self.move_machine()  # Ask if machine would like to move
+
     def updateGameState(self):
         self.human_can_move = self.modelo.canMoveFrom(self.modelo.searchCoords("Human"))
         self.machine_can_move = self.modelo.canMoveFrom(
@@ -172,13 +179,11 @@ class GameController:
         )
 
         if not (self.human_can_move) and not (self.machine_can_move):
-            iTimerPyQt5.iniciar(200)
-            if puntosMaquina > puntosHumano:
-                winner = "Maquina"
-            elif puntosMaquina < puntosHumano:
-                winner = "Humano"
-            else:
+            if puntosMaquina == puntosHumano:
                 winner = None
+            else:
+                winner = "la maquina" if puntosMaquina > puntosHumano else "el humano"
+
             resultado = f"ha ganado {winner}!" if winner else "es un empate!"
             Dialog.mostrar_dialogo("Resultados", f"El juego ha terminado, {resultado}")
 
@@ -209,47 +214,35 @@ class GameController:
         """
         Funcion que realiza el movimiento de la máquina
         """
-        old_pos_machine = self.modelo.searchCoords("Machine")
-        possible_moves = self.modelo.generateHorseMoves(old_pos_machine)
+        if self.human_can_move or self.machine_can_move:
+            if self.shouldPlayMachine() and self.machine_can_move:
+                old_pos_machine = self.modelo.searchCoords("Machine")
+                possible_moves = self.modelo.generateHorseMoves(old_pos_machine)
+                new_pos_machine = random.choice(possible_moves)
+                self.modelo.tablero[new_pos_machine[0]][new_pos_machine[1]] = 1
+                self.modelo.tablero[old_pos_machine[0]][old_pos_machine[1]] = 3
 
-        if possible_moves:
-            """
-            De momento, los movimientos se realizan aleatoriamente
-            """
-            new_pos_machine = random.choice(possible_moves)
-            self.modelo.tablero[new_pos_machine[0]][new_pos_machine[1]] = 1
-            self.modelo.tablero[old_pos_machine[0]][old_pos_machine[1]] = 3
-            self.disableButton(new_pos_machine[0], new_pos_machine[1])
-
-            self.modelo.printTablero()
-            self.paintBoard(self.modelo.tablero)
-            self.updateGameState()
-        else:
-            print_debug("La máquina no tiene movimientos válidos")
+                iTimerPyQt5.iniciar(1000)
+                self.disableButton(new_pos_machine[0], new_pos_machine[1])
+                self.updateGame()
 
     def handleButtonClick(self, button):
-        i = int(button.objectName().split("_")[1].split("-")[0])
-        j = int(button.objectName().split("-")[1])
+        if not self.shouldPlayMachine():
+            i = int(button.objectName().split("_")[1].split("-")[0])
+            j = int(button.objectName().split("-")[1])
 
-        old_pos_human = self.modelo.searchCoords("Human")
-        new_pos_human = (i, j)
-        print_debug(f"handle_button_click() -> {old_pos_human} -> {new_pos_human}")
+            old_pos_human = self.modelo.searchCoords("Human")
+            new_pos_human = (i, j)
+            print_debug(f"handle_button_click() -> {old_pos_human} -> {new_pos_human}")
 
-        if self.modelo.isValidMove(old_pos_human, new_pos_human):
-            # Movimiento del jugador humano
-            self.modelo.tablero[i][j] = 2
-            self.modelo.tablero[old_pos_human[0]][old_pos_human[1]] = 4
-            self.disableButton(i, j)
+            if self.modelo.isValidMove(old_pos_human, new_pos_human):
+                self.modelo.tablero[i][j] = 2
+                self.modelo.tablero[old_pos_human[0]][old_pos_human[1]] = 4
 
-            self.modelo.printTablero()
-            self.paintBoard(self.modelo.tablero)
-            self.updateGameState()
-
-            # Movimiento de la máquina
-            iTimerPyQt5.iniciar(1000)
-            self.move_machine()
-        else:
-            print_debug("Este movimiento no es válido")
+                self.disableButton(i, j)
+                self.updateGame()
+            else:
+                print_debug("Este movimiento no es válido")
 
     def mostrar(self, main_window):
         self.cargar(main_window)
@@ -293,37 +286,10 @@ class GameController:
         self.ui.centralwidget.setEnabled(True)
         self.ui.centralwidget.setVisible(True)
 
-    def enableFooterButtons(self):
-        self.ui.btn_volver.setVisible(True)
-        self.ui.btn_volver.setEnabled(True)
-        self.ui.btn_ver_reporte.setVisible(True)
-        self.ui.btn_ver_reporte.setEnabled(True)
-
-    def disableFooterButtons(self):
-        self.ui.btn_volver.setVisible(False)
-        self.ui.btn_volver.setEnabled(False)
-        self.ui.btn_ver_reporte.setVisible(False)
-        self.ui.btn_ver_reporte.setEnabled(False)
-
     def startGame(self, difficulty):
         self.modelo.difficulty = difficulty
         self.ui.lbl_titulo.setText(f"Modo {difficulty}")
-
-        iTimerPyQt5.iniciar(100)
-
-        # Empezar juego
-
-        iTimerPyQt5.iniciar(100)
-
-        # Uso de hilos de procesamiento
-
-        # # Hilo para mantener la interfaz atenta
-        # self.hilo_procesamiento = WorkerThread(self.modelo.startGame)
-        # # Eventos que requieren los calculos del hilo
-        # self.hilo_procesamiento.finished.connect(
-        #     self.tarea_a_ejecutar)
-        # # Inicia las tareas del hilo de la funcion run()
-        # self.hilo_procesamiento.start()
+        self.move_machine()
 
     def volver(self):
         self.cerrarProcesamientos()
