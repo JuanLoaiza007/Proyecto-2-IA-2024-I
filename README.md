@@ -13,7 +13,7 @@ Para usar la aplicación, sigue estos pasos:
 1. Clona el repositorio:
 
 ```
-git clone https://github.com/JuanLoaiza007/iTubeSaver.git
+git clone https://github.com/JuanLoaiza007/Proyecto-2-IA-2024-I.git
 ```
 
 2. Crea y activa un entorno virtual. Para crearlo puedes usar:

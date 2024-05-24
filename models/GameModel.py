@@ -1,6 +1,6 @@
 # [GameModel.py]
 
-debug = True
+debug = False
 
 
 def print_debug(message):
@@ -11,26 +11,39 @@ def print_debug(message):
 
 class GameModel:
     def __init__(self):
-        self.tablero = [[1, 0, 0, 0, 0],
-                        [0, 0, 0, 0, 0],
-                        [0, 0, 0, 0, 0],
-                        [0, 0, 0, 0, 0],
-                        [0, 0, 0, 0, 0],
-                        [0, 0, 0, 0, 0],
-                        [0, 0, 0, 0, 2],
-                        ]
+        self.tablero = [
+            [1, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 2],
+        ]
 
     def generateHorseMoves(self, old_pos):
         filas = range(len(self.tablero))
         columnas = range(len(self.tablero[0]))
 
-        movimientos = [(2, 1), (-2, 1), (2, -1), (-2, -1),
-                       (1, 2), (-1, 2), (1, -2), (-1, -2),]
+        movimientos = [
+            (2, 1),
+            (-2, 1),
+            (2, -1),
+            (-2, -1),
+            (1, 2),
+            (-1, 2),
+            (1, -2),
+            (-1, -2),
+        ]
         posibles_movimientos = []
 
         for movimiento in movimientos:
             new_pos = (old_pos[0] + movimiento[0], old_pos[1] + movimiento[1])
-            if new_pos[0] in filas and new_pos[1] in columnas and self.isFreePosition(new_pos):
+            if (
+                new_pos[0] in filas
+                and new_pos[1] in columnas
+                and self.isFreePosition(new_pos)
+            ):
                 posibles_movimientos.append(new_pos)
         return posibles_movimientos
 
@@ -56,7 +69,7 @@ class GameModel:
     def countPoints(self, someone="Machine"):
         count = 0
         now = 1 if someone == "Machine" else 2
-        taked = 1 if someone == "Machine" else 4
+        taked = 3 if someone == "Machine" else 4
         for i in range(len(self.tablero)):
             for j in range(len(self.tablero[i])):
                 if self.tablero[i][j] == now or self.tablero[i][j] == taked:

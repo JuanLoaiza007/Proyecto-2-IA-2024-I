@@ -3,7 +3,7 @@
 from views.AboutUsView import Ui_MainWindow
 from models.AboutUsModel import AboutUsModel
 
-debug = True
+debug = False
 
 
 def print_debug(message):
@@ -29,5 +29,6 @@ class AboutUsController:
 
     def volver(self):
         from controllers.MainController import MainController
+
         self.MainController = MainController()
         self.MainController.mostrar(self.MainWindow)
