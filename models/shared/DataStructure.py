@@ -56,39 +56,9 @@ class Estado:
         """
         self.x = x
         self.y = y
-        self.en_nave = False
-        self.movimientos_nave = 0
-
-    def activar_nave(self):
-        self.en_nave = True
-        self.movimientos_nave = 10
-
-    def puede_usar_nave(self):
-        # Verifica que se pueda usar
-        if self.en_nave == False or self.movimientos_nave <= 0:
-            return False
-        return True
-
-    def usar_nave(self):
-        if not (self.puede_usar_nave):
-            print_debug(
-                "Estado.usar_nave() -> Me has llamado pero no puedes usar la nave")
-            return False
-
-        # Resta un movimiento
-        self.movimientos_nave -= 1
-
-        # Comprueba si quedan movimientos
-        if self.movimientos_nave == 0:
-            # Actualiza las ventajas de la nave
-            self.en_nave = False
-        return True
-
+        
     def get_coordenadas(self):
-        return [self.x, self.y]
-
-    def get_info_nave(self):
-        return self.en_nave, self.movimientos_nave
+        return [self.x, self.y]       
 
     def __str__(self) -> str:
         """
@@ -101,18 +71,16 @@ class Estado:
             Las coordenadas en string.
         """
         a_string = "{} {} {}".format(
-            str(self.x), str(self.y), str(self.en_nave))
-        return a_string
-
+            str(self.x), str(self.y))
+        return a_string     
 
 class Problema:
-    def __init__(self, estado_inicial: Estado, estado_objetivo: Estado, matriz):
+    def __init__(self, estado_inicial: Estado, matriz, tablero):
         """
         Inicializa un nuevo problema
 
         Args:
             estado_inicial (Estado): El estado actual del problema.
-            estado_objetivo (Estado): El estado deseado.
             matriz (): La matriz que representa el ambiente.
 
 
@@ -120,8 +88,8 @@ class Problema:
             Las coordenadas en string.
         """
         self.estado_inicial = estado_inicial
-        self.estado_objetivo = estado_objetivo
         self.matriz = matriz
+        self.tablero = tablero    
 
     def __str__(self) -> str:
         mensaje = "Estado inicial: {} -> Estado objetivo: {1}".format(
@@ -131,92 +99,11 @@ class Problema:
     def get_estado_inicial(self) -> Estado:
         return self.estado_inicial
 
-    def get_estado_objetivo(self) -> Estado:
-        return self.estado_objetivo
-
     def get_matriz(self):
         return self.matriz
-
-    def es_estado_valido(self, estado: Estado) -> bool:
-        """
-        Determina si un estado es valido o no.
-        Eg: Un estado NO válido seria que el agente se encontra en las mismas coordenadas que un muro.
-
-        Args:
-            estado (Estado): El estado que se desea evaluar.
-
-        Returns:
-            True, si el estado es válido
-            False, si el estado NO es válido.
-        """
-
-        enMatriz = 0 <= estado.x < 10 and 0 <= estado.y < 10
-        if not (enMatriz):
-            return False
-
-        enPared = self.matriz[estado.x][estado.y] == dic_objetos['pared']
-
-        return enMatriz and not (enPared)
-
-    def hay_nave(self, estado: Estado) -> bool:
-        nave = self.matriz[estado.x][estado.y] == dic_objetos['nave']
-        return nave
-
-    def hay_enemigo(self, estado: Estado) -> bool:
-        enemigo = self.matriz[estado.x][estado.y] == dic_objetos['enemigo']
-        return enemigo
-
-    def es_estado_objetivo(self) -> bool:
-        """
-        Determina si un estado es el estado deseado/objetivo.
-
-        Args:
-            Ninguno.
-
-        Returns:
-            True, si el estado es el objetivo.
-            False, si el estado no es el objetivo
-        """
-        return self.estado_inicial.get_coordenadas() == self.estado_objetivo.get_coordenadas()
-
-    def generar_operadores(self) -> "list[Operador]":
-        """
-        Genera las operadores validas para el estado.
-
-        Args:
-            estado (Estado): El estado del que se quiere generar operadores
-
-        Returns:
-            operadores ([Operador, Operador,... Operador]): Un vector de operadores.
-        """
-        operadores = []
-        estado = self.estado_inicial
-        # OJO: Aquí hay una corrección para los indices de la matriz,
-        # arriba es (0, -1) y así sucesivamente.
-        # En el árbol de búsqueda el orden de los operadores sería arriba, izquierda, abajo, derecha
-        for dy, dx, operador_nombre in [(1, 0, 'derecha'), (0, 1, 'abajo'), (-1, 0, 'izquierda'), (0, -1, 'arriba')]:
-            nuevo_estado = Estado(estado.x + dx, estado.y + dy)
-            if self.es_estado_valido(nuevo_estado):
-                operadores.append(Operador(operador_nombre, dx, dy))
-        return operadores
-
-    def resultado(self, estado: Estado, operador: Operador) -> Estado:
-        """
-        Genera un nuevo estado aplicando un operador sobre el actual.
-
-        Args:
-            estado (Estado): El estado actual.
-            operador (Operador): El operador que se quiere aplicar al estado.
-
-        Returns:
-            nuevo_estado (Estado): Un nuevo estado que surge de aplicar el operador al estado actual.
-            None si el nuevo estado no cumple con las reglas de juego.
-        """
-        nuevo_estado = Estado(estado.x + operador.dx, estado.y + operador.dy)
-        if self.es_estado_valido(nuevo_estado):
-            return nuevo_estado
-        else:
-            return None
+    
+    def get_tablero(self):
+        return self.tablero
 
 
 class Nodo:
@@ -299,7 +186,7 @@ class Nodo:
         return self.problema.es_estado_objetivo()
 
     def calcular_heuristica(self):
-        # Calcula la heurística del nodo actual basada en la distancia de Manhattan dividida por
+        '''        # Calcula la heurística del nodo actual basada en la distancia de Manhattan dividida por
 
         estado_actual = self.get_estado()
         estado_objetivo = self.problema.get_estado_objetivo()
@@ -311,9 +198,10 @@ class Nodo:
         # Divide la distancia de Manhattan por 2
         heuristica = distancia_manhattan / 2
 
-        return heuristica
-
+        return heuristica'''
+        return 0
     def expandir(self):
+        # esto no se si se utilizara
         """
         Expande el nodo actual
 
@@ -326,7 +214,7 @@ class Nodo:
         # Limpiar hijos por si las moscas
         self.hijos = []
 
-        operadores = self.problema.generar_operadores()
+        '''        operadores = self.problema.generar_operadores()
 
         if len(operadores) == 0:
             return self.hijos
@@ -366,13 +254,13 @@ class Nodo:
                 hijo.set_profundidad(self.profundidad + 1)
                 hijo.set_costo_acumulado(self.costo_acumulado + costo)
 
-                self.hijos.append(hijo)
+                self.hijos.append(hijo)'''
 
         return self.hijos
 
 
 if __name__ == '__main__':
-    estado_inicial = Estado(0, 0)
+    '''    estado_inicial = Estado(0, 0)
     estado_inicial.activar_nave()
     estado_inicial.activar_nave()
 
@@ -383,7 +271,7 @@ if __name__ == '__main__':
     for i in range(10):
         estado_final.usar_nave()
 
-    print(str(estado_inicial))
+    print(str(estado_inicial))'''
 
 
 class Test():
