@@ -2,6 +2,8 @@
 from queue import Queue
 import json
 import copy
+import random
+from ..GameModel import GameModel
 
 debug = False
 
@@ -56,39 +58,9 @@ class Estado:
         """
         self.x = x
         self.y = y
-        self.en_nave = False
-        self.movimientos_nave = 0
-
-    def activar_nave(self):
-        self.en_nave = True
-        self.movimientos_nave = 10
-
-    def puede_usar_nave(self):
-        # Verifica que se pueda usar
-        if self.en_nave == False or self.movimientos_nave <= 0:
-            return False
-        return True
-
-    def usar_nave(self):
-        if not (self.puede_usar_nave):
-            print_debug(
-                "Estado.usar_nave() -> Me has llamado pero no puedes usar la nave")
-            return False
-
-        # Resta un movimiento
-        self.movimientos_nave -= 1
-
-        # Comprueba si quedan movimientos
-        if self.movimientos_nave == 0:
-            # Actualiza las ventajas de la nave
-            self.en_nave = False
-        return True
 
     def get_coordenadas(self):
         return [self.x, self.y]
-
-    def get_info_nave(self):
-        return self.en_nave, self.movimientos_nave
 
     def __str__(self) -> str:
         """
@@ -101,12 +73,12 @@ class Estado:
             Las coordenadas en string.
         """
         a_string = "{} {} {}".format(
-            str(self.x), str(self.y), str(self.en_nave))
+            str(self.x), str(self.y))
         return a_string
 
 
 class Problema:
-    def __init__(self, estado_inicial: Estado, estado_objetivo: Estado, matriz):
+    def __init__(self, estado_inicial: Estado, jugador1: str, jugador2: str):
         """
         Inicializa un nuevo problema
 
@@ -120,87 +92,51 @@ class Problema:
             Las coordenadas en string.
         """
         self.estado_inicial = estado_inicial
-        self.estado_objetivo = estado_objetivo
-        self.matriz = matriz
+        self.jugador1 = jugador1
+        self.jugador2 = jugador2
 
     def __str__(self) -> str:
         mensaje = "Estado inicial: {} -> Estado objetivo: {1}".format(
-            self.estado_inicial, self.estado_objetivo)
+            self.estado_inicial, self.jugador1, self.jugador2)
         return mensaje
 
     def get_estado_inicial(self) -> Estado:
         return self.estado_inicial
-
-    def get_estado_objetivo(self) -> Estado:
-        return self.estado_objetivo
-
-    def get_matriz(self):
-        return self.matriz
-
-    def es_estado_valido(self, estado: Estado) -> bool:
-        """
-        Determina si un estado es valido o no.
-        Eg: Un estado NO válido seria que el agente se encontra en las mismas coordenadas que un muro.
-
-        Args:
-            estado (Estado): El estado que se desea evaluar.
-
-        Returns:
-            True, si el estado es válido
-            False, si el estado NO es válido.
-        """
-
-        enMatriz = 0 <= estado.x < 10 and 0 <= estado.y < 10
-        if not (enMatriz):
+    
+    def get_jugador1(self) -> str:
+        return self.jugador1
+    
+    def get_jugador2(self) -> str:
+        return self.jugador2
+    
+    def movimientos_jugador(estado: Estado):
+        return GameModel.generateHorseMoves(estado)
+    
+    def nuevo_estado(self, estado: Estado) -> Estado:
+        return random.choice(self.movimientos_jugador(estado))
+    
+    def es_estado_objetivo(self, estado: Estado):
+        if self.movimientos_jugador(estado) == []:
+            return True
+        else:
             return False
-
-        enPared = self.matriz[estado.x][estado.y] == dic_objetos['pared']
-
-        return enMatriz and not (enPared)
-
-    def hay_nave(self, estado: Estado) -> bool:
-        nave = self.matriz[estado.x][estado.y] == dic_objetos['nave']
-        return nave
-
-    def hay_enemigo(self, estado: Estado) -> bool:
-        enemigo = self.matriz[estado.x][estado.y] == dic_objetos['enemigo']
-        return enemigo
-
-    def es_estado_objetivo(self) -> bool:
+        
+    def utilidad(estado: Estado) -> int:
         """
-        Determina si un estado es el estado deseado/objetivo.
+        Evalúa un estado y devuelve un valor numérico que representa 
+        qué tan bueno es ese estado para el jugador.
 
         Args:
-            Ninguno.
+            estado (Estado): El estado a evaluar.
 
         Returns:
-            True, si el estado es el objetivo.
-            False, si el estado no es el objetivo
-        """
-        return self.estado_inicial.get_coordenadas() == self.estado_objetivo.get_coordenadas()
+            int: Valor numérico de la evaluación del estado.
+        """   
+        x, y = estado.get_coordenadas()
+        return x + y
 
-    def generar_operadores(self) -> "list[Operador]":
-        """
-        Genera las operadores validas para el estado.
 
-        Args:
-            estado (Estado): El estado del que se quiere generar operadores
-
-        Returns:
-            operadores ([Operador, Operador,... Operador]): Un vector de operadores.
-        """
-        operadores = []
-        estado = self.estado_inicial
-        # OJO: Aquí hay una corrección para los indices de la matriz,
-        # arriba es (0, -1) y así sucesivamente.
-        # En el árbol de búsqueda el orden de los operadores sería arriba, izquierda, abajo, derecha
-        for dy, dx, operador_nombre in [(1, 0, 'derecha'), (0, 1, 'abajo'), (-1, 0, 'izquierda'), (0, -1, 'arriba')]:
-            nuevo_estado = Estado(estado.x + dx, estado.y + dy)
-            if self.es_estado_valido(nuevo_estado):
-                operadores.append(Operador(operador_nombre, dx, dy))
-        return operadores
-
-    def resultado(self, estado: Estado, operador: Operador) -> Estado:
+    '''    def resultado(self, estado: Estado, operador: Operador) -> Estado:
         """
         Genera un nuevo estado aplicando un operador sobre el actual.
 
@@ -216,7 +152,7 @@ class Problema:
         if self.es_estado_valido(nuevo_estado):
             return nuevo_estado
         else:
-            return None
+            return None'''
 
 
 class Nodo:
@@ -250,9 +186,6 @@ class Nodo:
         self.operador: Operador = None
         self.profundidad: int = 0
         self.costo_acumulado: int = 0
-
-    def __lt__(self, other):
-        return self.costo_acumulado < other.costo_acumulado
 
     def __str__(self) -> str:
         padre = None
@@ -295,23 +228,8 @@ class Nodo:
     def set_costo_acumulado(self, costo_acumulado: int):
         self.costo_acumulado = costo_acumulado
 
-    def es_meta(self) -> bool:
-        return self.problema.es_estado_objetivo()
-
     def calcular_heuristica(self):
-        # Calcula la heurística del nodo actual basada en la distancia de Manhattan dividida por
-
-        estado_actual = self.get_estado()
-        estado_objetivo = self.problema.get_estado_objetivo()
-
-        # Calcula la distancia de Manhattan
-        distancia_manhattan = abs(
-            estado_actual.x - estado_objetivo.x) + abs(estado_actual.y - estado_objetivo.y)
-
-        # Divide la distancia de Manhattan por 2
-        heuristica = distancia_manhattan / 2
-
-        return heuristica
+        return 0
 
     def expandir(self):
         """
@@ -326,12 +244,12 @@ class Nodo:
         # Limpiar hijos por si las moscas
         self.hijos = []
 
-        operadores = self.problema.generar_operadores()
+        #operadores = self.problema.generar_operadores()
 
-        if len(operadores) == 0:
-            return self.hijos
+        #if len(operadores) == 0:
+            #return self.hijos
 
-        for operador in operadores:
+        '''        for operador in operadores:
             # === Creacion y configuracion del nuevo estado ===
             # Creo un nuevo estado despues de aplicar el operador
             nuevo_estado = self.problema.resultado(
@@ -366,13 +284,13 @@ class Nodo:
                 hijo.set_profundidad(self.profundidad + 1)
                 hijo.set_costo_acumulado(self.costo_acumulado + costo)
 
-                self.hijos.append(hijo)
+                self.hijos.append(hijo)'''
 
         return self.hijos
 
 
 if __name__ == '__main__':
-    estado_inicial = Estado(0, 0)
+    '''    estado_inicial = Estado(0, 0)
     estado_inicial.activar_nave()
     estado_inicial.activar_nave()
 
@@ -383,7 +301,7 @@ if __name__ == '__main__':
     for i in range(10):
         estado_final.usar_nave()
 
-    print(str(estado_inicial))
+    print(str(estado_inicial))'''
 
 
 class Test():
