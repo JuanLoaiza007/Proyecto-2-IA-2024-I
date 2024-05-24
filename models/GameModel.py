@@ -1,4 +1,5 @@
 # [GameModel.py]
+import random
 
 debug = False
 
@@ -11,16 +12,30 @@ def print_debug(message):
 
 class GameModel:
     def __init__(self):
-        self.tablero = [
-            [1, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 2],
-        ]
         self.difficulty = None
+        self.tablero = [
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+        ]
+        self.setInitialRandomPositionToPlayers()
+
+    def setInitialRandomPositionToPlayers(self):
+        filas = len(self.tablero)
+
+        columnas = len(self.tablero[0])
+        pos1 = (random.randint(0, filas - 1), random.randint(0, columnas - 1))
+        pos2 = pos1
+
+        while pos2 == pos1:
+            pos2 = (random.randint(0, filas - 1), random.randint(0, columnas - 1))
+
+        self.tablero[pos1[0]][pos1[1]] = 1
+        self.tablero[pos2[0]][pos2[1]] = 2
 
     def generateHorseMoves(self, old_pos):
         filas = range(len(self.tablero))
