@@ -20,6 +20,7 @@ class GameModel:
             [0, 0, 0, 0, 0],
             [0, 0, 0, 0, 2],
         ]
+        self.difficulty = None
 
     def generateHorseMoves(self, old_pos):
         filas = range(len(self.tablero))

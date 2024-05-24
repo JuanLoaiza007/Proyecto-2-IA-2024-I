@@ -71,12 +71,14 @@ class GameController:
         self.MainWindow.destroyed.connect(self.cerrarVentana)
 
         # Listeners
-        self.ui.btn_ver_reporte.clicked.connect(self.showReport)
         self.ui.btn_volver.clicked.connect(self.volver)
 
     def cerrarProcesamientos(self):
         try:
-            if self.hilo_procesamiento != None and self.hilo_procesamiento.isRunning():
+            if (
+                self.hilo_procesamiento is not None
+                and self.hilo_procesamiento.isRunning()
+            ):
                 self.hilo_procesamiento.exit()
 
         except RuntimeError:
@@ -109,8 +111,7 @@ class GameController:
                 button.setObjectName(f"btn_{i}-{j}")
                 button.setProperty("class", _translate("MainWindow", "ficha"))
                 button.clicked.connect(
-                    lambda checked, button=button: self.handleButtonClick(
-                        button)
+                    lambda checked, button=button: self.handleButtonClick(button)
                 )
                 self.ui.mainGridLayout.addWidget(button, i, j)
                 row_buttons.append(button)
@@ -118,8 +119,7 @@ class GameController:
 
     def paintBoard(self, board):
         # Images path
-        green_yoshi_abs_path = os.path.abspath(
-            "./assets/images/green_yoshi.png")
+        green_yoshi_abs_path = os.path.abspath("./assets/images/green_yoshi.png")
         red_yoshi_abs_path = os.path.abspath("./assets/images/red_yoshi.png")
 
         # Icons
@@ -132,28 +132,22 @@ class GameController:
                 button = self.buttons[i][j]
                 if board[i][j] == 1:
                     button.setIcon(green_yoshi_icon)
-                    self.buttons[i][j].setStyleSheet(
-                        "background-color: #2ecc71;")
+                    self.buttons[i][j].setStyleSheet("background-color: #2ecc71;")
                 elif board[i][j] == 2:
                     button.setIcon(red_yoshi_icon)
-                    self.buttons[i][j].setStyleSheet(
-                        "background-color: #e74c3c;")
+                    self.buttons[i][j].setStyleSheet("background-color: #e74c3c;")
                 else:
                     button.setIcon(null_icon)
                     if board[i][j] == 3:
-                        self.buttons[i][j].setStyleSheet(
-                            "background-color: #27ae60;")
+                        self.buttons[i][j].setStyleSheet("background-color: #27ae60;")
                     elif board[i][j] == 4:
-                        self.buttons[i][j].setStyleSheet(
-                            "background-color: #c0392b;")
+                        self.buttons[i][j].setStyleSheet("background-color: #c0392b;")
                     else:
-                        self.buttons[i][j].setStyleSheet(
-                            "background-color: white;")
+                        self.buttons[i][j].setStyleSheet("background-color: white;")
         print("\n\n\n")
 
     def updateGameState(self):
-        self.human_can_move = self.modelo.canMoveFrom(
-            self.modelo.searchCoords("Human"))
+        self.human_can_move = self.modelo.canMoveFrom(self.modelo.searchCoords("Human"))
         self.machine_can_move = self.modelo.canMoveFrom(
             self.modelo.searchCoords("Machine")
         )
@@ -175,8 +169,7 @@ class GameController:
             else:
                 winner = None
             resultado = f"ha ganado {winner}!" if winner else "es un empate!"
-            Dialog.mostrar_dialogo(
-                "Resultados", f"El juego ha terminado, {resultado}")
+            Dialog.mostrar_dialogo("Resultados", f"El juego ha terminado, {resultado}")
 
     def disableButton(self, i, j):
         self.buttons[i][j].setCursor(QtGui.QCursor(Qt.ArrowCursor))
@@ -285,7 +278,9 @@ class GameController:
         self.ui.btn_ver_reporte.setVisible(False)
         self.ui.btn_ver_reporte.setEnabled(False)
 
-    def startGame(self):
+    def startGame(self, difficulty):
+        self.modelo.difficulty = difficulty
+        self.ui.lbl_titulo.setText(f"Modo {difficulty}")
 
         iTimerPyQt5.iniciar(100)
 
@@ -302,9 +297,6 @@ class GameController:
         #     self.tarea_a_ejecutar)
         # # Inicia las tareas del hilo de la funcion run()
         # self.hilo_procesamiento.start()
-
-    def showReport(self):
-        print_debug("showReport() -> Boton de mostrar reporte presionado!!!")
 
     def volver(self):
         self.cerrarProcesamientos()
