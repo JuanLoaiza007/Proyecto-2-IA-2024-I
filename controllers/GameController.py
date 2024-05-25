@@ -5,11 +5,14 @@ from PyQt5 import QtWidgets, QtGui
 from PyQt5.QtCore import Qt, QSize, QCoreApplication
 from views.GameView import Ui_MainWindow
 from models.GameModel import GameModel
+from models.shared.DataStructure import *
 from models.shared.tools.iTimerPyQt5 import iTimerPyQt5
 from models.shared.tools.Dialog import Dialog
+from models.shared.Minimax import mejor_jugada
 from PyQt5.QtCore import QThread
+import random
 
-debug = False
+debug = True
 
 
 def print_debug(message):
@@ -46,7 +49,7 @@ class GameController:
 
     # Funcion para inicializar (general)
     def cargar(self, main_window):
-        self.machineTurn = True
+        self.machineTurn = False
         self.modelo = GameModel()
         self.MainWindow = main_window
         self.minSizeHint = QSize(800, 600)
@@ -55,9 +58,12 @@ class GameController:
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self.MainWindow)
 
+        #  Configuracion de los jugadores
         self.human_can_move = True
         self.machine_can_move = True
+        self.machineTurn = True
 
+        # Configuracion del tablero de juego
         self.buttons = []
         self.createBoard(len(self.modelo.tablero), len(self.modelo.tablero[0]))
         self.paintBoard(self.modelo.tablero)
@@ -71,12 +77,14 @@ class GameController:
         self.MainWindow.destroyed.connect(self.cerrarVentana)
 
         # Listeners
-        self.ui.btn_ver_reporte.clicked.connect(self.showReport)
         self.ui.btn_volver.clicked.connect(self.volver)
 
     def cerrarProcesamientos(self):
         try:
-            if self.hilo_procesamiento != None and self.hilo_procesamiento.isRunning():
+            if (
+                self.hilo_procesamiento is not None
+                and self.hilo_procesamiento.isRunning()
+            ):
                 self.hilo_procesamiento.exit()
 
         except RuntimeError:
@@ -109,8 +117,7 @@ class GameController:
                 button.setObjectName(f"btn_{i}-{j}")
                 button.setProperty("class", _translate("MainWindow", "ficha"))
                 button.clicked.connect(
-                    lambda checked, button=button: self.handleButtonClick(
-                        button)
+                    lambda checked, button=button: self.handleButtonClick(button)
                 )
                 self.ui.mainGridLayout.addWidget(button, i, j)
                 row_buttons.append(button)
@@ -118,8 +125,7 @@ class GameController:
 
     def paintBoard(self, board):
         # Images path
-        green_yoshi_abs_path = os.path.abspath(
-            "./assets/images/green_yoshi.png")
+        green_yoshi_abs_path = os.path.abspath("./assets/images/green_yoshi.png")
         red_yoshi_abs_path = os.path.abspath("./assets/images/red_yoshi.png")
 
         # Icons
@@ -127,36 +133,53 @@ class GameController:
         red_yoshi_icon = QtGui.QIcon(red_yoshi_abs_path)
         null_icon = QtGui.QIcon()
 
-        for i in range(len(board)):
-            for j in range(len(board[0])):
-                button = self.buttons[i][j]
-                if board[i][j] == 1:
-                    button.setIcon(green_yoshi_icon)
-                    self.buttons[i][j].setStyleSheet(
-                        "background-color: #2ecc71;")
-                elif board[i][j] == 2:
-                    button.setIcon(red_yoshi_icon)
-                    self.buttons[i][j].setStyleSheet(
-                        "background-color: #e74c3c;")
-                else:
-                    button.setIcon(null_icon)
-                    if board[i][j] == 3:
-                        self.buttons[i][j].setStyleSheet(
-                            "background-color: #27ae60;")
-                    elif board[i][j] == 4:
-                        self.buttons[i][j].setStyleSheet(
-                            "background-color: #c0392b;")
+        try:
+            for i in range(len(board)):
+                for j in range(len(board[0])):
+                    button = self.buttons[i][j]
+                    if board[i][j] == 1:
+                        button.setIcon(green_yoshi_icon)
+                        self.buttons[i][j].setStyleSheet("background-color: #2ecc71;")
+                    elif board[i][j] == 2:
+                        button.setIcon(red_yoshi_icon)
+                        self.buttons[i][j].setStyleSheet("background-color: #e74c3c;")
                     else:
-                        self.buttons[i][j].setStyleSheet(
-                            "background-color: white;")
-        print("\n\n\n")
+                        button.setIcon(null_icon)
+                        if board[i][j] == 3:
+                            self.buttons[i][j].setStyleSheet(
+                                "background-color: #27ae60;"
+                            )
+                        elif board[i][j] == 4:
+                            self.buttons[i][j].setStyleSheet(
+                                "background-color: #c0392b;"
+                            )
+                        else:
+                            self.buttons[i][j].setStyleSheet("background-color: white;")
+            print("\n\n\n")
+        except Exception as e:
+            print_debug(f"paintBoard() -> ERROR: {e}")
+
+    def updateGame(self):
+        try:
+            self.machineTurn = not self.machineTurn  # Toggle machineTurn
+            self.modelo.printTablero()
+            self.paintBoard(self.modelo.tablero)
+            self.updateGameState()  # Update gamestate
+            self.move_machine()  # Ask if machine would like to move
+        except Exception as e:
+            print_debug(f"updateGame() -> ERROR: {e}")
 
     def updateGameState(self):
-        self.human_can_move = self.modelo.canMoveFrom(
-            self.modelo.searchCoords("Human"))
+        self.human_can_move = self.modelo.canMoveFrom(self.modelo.searchCoords("Human"))
         self.machine_can_move = self.modelo.canMoveFrom(
             self.modelo.searchCoords("Machine")
         )
+
+        x, y = self.modelo.searchCoords("Human")
+        estado = Estado(x, y)
+
+        humanUtility = Problema.utilidad(estado)
+        print_debug(f"updateGameState() -> {humanUtility}")
 
         quienJuega = "Maquina" if self.shouldPlayMachine() else "Humano"
         puntosMaquina = self.modelo.countPoints("Machine")
@@ -167,20 +190,20 @@ class GameController:
         )
 
         if not (self.human_can_move) and not (self.machine_can_move):
-            iTimerPyQt5.iniciar(200)
-            if puntosMaquina > puntosHumano:
-                winner = "Maquina"
-            elif puntosMaquina < puntosHumano:
-                winner = "Humano"
-            else:
+            if puntosMaquina == puntosHumano:
                 winner = None
+            else:
+                winner = "la maquina" if puntosMaquina > puntosHumano else "el humano"
+
             resultado = f"ha ganado {winner}!" if winner else "es un empate!"
-            Dialog.mostrar_dialogo(
-                "Resultados", f"El juego ha terminado, {resultado}")
+            self.mostrarDialogo("Resultados", f"El juego ha terminado, {resultado}")
 
     def disableButton(self, i, j):
-        self.buttons[i][j].setCursor(QtGui.QCursor(Qt.ArrowCursor))
-        self.buttons[i][j].clicked.disconnect()
+        try:
+            self.buttons[i][j].setCursor(QtGui.QCursor(Qt.ArrowCursor))
+            self.buttons[i][j].clicked.disconnect()
+        except Exception as e:
+            print_debug(f"disableButton() -> ERROR: {e}")
 
     def searchAndDisableActualPosition(self):
         humanCoords = self.modelo.searchCoords("Human")
@@ -198,38 +221,40 @@ class GameController:
             not self.machineTurn and not (self.human_can_move)
         )
 
+    def move_machine(self):
+        """
+        Funcion que realiza el movimiento de la máquina
+        """
+        if self.human_can_move or self.machine_can_move:
+            if self.shouldPlayMachine() and self.machine_can_move:
+                old_pos_machine = self.modelo.searchCoords("Machine")
+                new_pos_machine = mejor_jugada(
+                    self.modelo.tablero, self.modelo.intDifficulty
+                )
+                self.modelo.tablero[new_pos_machine[0]][new_pos_machine[1]] = 1
+                self.modelo.tablero[old_pos_machine[0]][old_pos_machine[1]] = 3
+
+                iTimerPyQt5.iniciar(1000)
+                self.disableButton(new_pos_machine[0], new_pos_machine[1])
+                self.updateGame()
+
     def handleButtonClick(self, button):
-        machineCoords = self.modelo.searchCoords("Machine")
-        humanCoords = self.modelo.searchCoords("Human")
+        if not self.shouldPlayMachine():
+            i = int(button.objectName().split("_")[1].split("-")[0])
+            j = int(button.objectName().split("-")[1])
 
-        i = int(button.objectName().split("_")[1].split("-")[0])
-        j = int(button.objectName().split("-")[1])
+            old_pos_human = self.modelo.searchCoords("Human")
+            new_pos_human = (i, j)
+            print_debug(f"handle_button_click() -> {old_pos_human} -> {new_pos_human}")
 
-        old_pos = None
-        new_pos = (i, j)
-
-        if self.shouldPlayMachine():
-            old_pos = self.modelo.searchCoords("Machine")
-        else:
-            old_pos = self.modelo.searchCoords("Human")
-
-        if self.modelo.isValidMove(old_pos, new_pos):
-
-            if self.shouldPlayMachine():
-                self.modelo.tablero[i][j] = 1
-                self.modelo.tablero[machineCoords[0]][machineCoords[1]] = 3
-            else:
+            if self.modelo.isValidMove(old_pos_human, new_pos_human):
                 self.modelo.tablero[i][j] = 2
-                self.modelo.tablero[humanCoords[0]][humanCoords[1]] = 4
+                self.modelo.tablero[old_pos_human[0]][old_pos_human[1]] = 4
 
-            self.disableButton(i, j)
-            self.machineTurn = not self.machineTurn
-
-            self.modelo.printTablero()
-            self.paintBoard(self.modelo.tablero)
-            self.updateGameState()
-        else:
-            print_debug("Este movimiento no es válido")
+                self.disableButton(i, j)
+                self.updateGame()
+            else:
+                print_debug("Este movimiento no es válido")
 
     def mostrar(self, main_window):
         self.cargar(main_window)
@@ -273,38 +298,13 @@ class GameController:
         self.ui.centralwidget.setEnabled(True)
         self.ui.centralwidget.setVisible(True)
 
-    def enableFooterButtons(self):
-        self.ui.btn_volver.setVisible(True)
-        self.ui.btn_volver.setEnabled(True)
-        self.ui.btn_ver_reporte.setVisible(True)
-        self.ui.btn_ver_reporte.setEnabled(True)
-
-    def disableFooterButtons(self):
-        self.ui.btn_volver.setVisible(False)
-        self.ui.btn_volver.setEnabled(False)
-        self.ui.btn_ver_reporte.setVisible(False)
-        self.ui.btn_ver_reporte.setEnabled(False)
-
-    def startGame(self):
-
-        iTimerPyQt5.iniciar(100)
-
-        # Empezar juego
-
-        iTimerPyQt5.iniciar(100)
-
-        # Uso de hilos de procesamiento
-
-        # # Hilo para mantener la interfaz atenta
-        # self.hilo_procesamiento = WorkerThread(self.modelo.startGame)
-        # # Eventos que requieren los calculos del hilo
-        # self.hilo_procesamiento.finished.connect(
-        #     self.tarea_a_ejecutar)
-        # # Inicia las tareas del hilo de la funcion run()
-        # self.hilo_procesamiento.start()
-
-    def showReport(self):
-        print_debug("showReport() -> Boton de mostrar reporte presionado!!!")
+    def startGame(self, difficulty):
+        self.modelo.difficulty = difficulty
+        self.modelo.intDifficulty = (
+            2 if difficulty == "Facil" else 4 if difficulty == "Medio" else 6
+        )
+        self.ui.lbl_titulo.setText(f"Modo {difficulty}")
+        self.move_machine()
 
     def volver(self):
         self.cerrarProcesamientos()
