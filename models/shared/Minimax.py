@@ -1,9 +1,19 @@
 # [Minimax.py]
 
-from DataStructureAlt import (
+from models.shared.DataStructureAlt import (
     Problema,
     Nodo,
+    searchCoords,
 )
+
+
+debug = True
+
+
+def print_debug(message):
+    new_message = "[Minimax.py]: " + message
+    if debug:
+        print(new_message)
 
 
 def minimax(nodo, profundidad, maximizando, alpha=float("-inf"), beta=float("inf")):
@@ -31,6 +41,7 @@ def minimax(nodo, profundidad, maximizando, alpha=float("-inf"), beta=float("inf
 
 
 def mejor_jugada(tablero, profundidad):
+    print_debug(f"Me llamaron con {profundidad} de dificultad/profundidad")
     problema_inicial = Problema(tablero)
     nodo_raiz = Nodo(problema_inicial)
 
@@ -43,7 +54,9 @@ def mejor_jugada(tablero, profundidad):
             mejor_valor = valor
             mejor_movimiento = hijo.problema.tablero
 
-    return mejor_movimiento
+    coordenadas_mejor_movimiento = searchCoords("Machine", mejor_movimiento)
+    print_debug(f"Mejor movimiento encontrado: {coordenadas_mejor_movimiento}")
+    return coordenadas_mejor_movimiento
 
 
 if __name__ == "__main__":
