@@ -14,8 +14,8 @@ def print_debug(message):
 class MainModel:
     def __init__(self) -> None:
         self.dificultades = [
-            "Facil",
-            "Medio",
-            "Dificil",
+            "Principiante",
+            "Amateur",
+            "Experto",
         ]
         self.dificultad = None
