@@ -133,31 +133,41 @@ class GameController:
         red_yoshi_icon = QtGui.QIcon(red_yoshi_abs_path)
         null_icon = QtGui.QIcon()
 
-        for i in range(len(board)):
-            for j in range(len(board[0])):
-                button = self.buttons[i][j]
-                if board[i][j] == 1:
-                    button.setIcon(green_yoshi_icon)
-                    self.buttons[i][j].setStyleSheet("background-color: #2ecc71;")
-                elif board[i][j] == 2:
-                    button.setIcon(red_yoshi_icon)
-                    self.buttons[i][j].setStyleSheet("background-color: #e74c3c;")
-                else:
-                    button.setIcon(null_icon)
-                    if board[i][j] == 3:
-                        self.buttons[i][j].setStyleSheet("background-color: #27ae60;")
-                    elif board[i][j] == 4:
-                        self.buttons[i][j].setStyleSheet("background-color: #c0392b;")
+        try:
+            for i in range(len(board)):
+                for j in range(len(board[0])):
+                    button = self.buttons[i][j]
+                    if board[i][j] == 1:
+                        button.setIcon(green_yoshi_icon)
+                        self.buttons[i][j].setStyleSheet("background-color: #2ecc71;")
+                    elif board[i][j] == 2:
+                        button.setIcon(red_yoshi_icon)
+                        self.buttons[i][j].setStyleSheet("background-color: #e74c3c;")
                     else:
-                        self.buttons[i][j].setStyleSheet("background-color: white;")
-        print("\n\n\n")
+                        button.setIcon(null_icon)
+                        if board[i][j] == 3:
+                            self.buttons[i][j].setStyleSheet(
+                                "background-color: #27ae60;"
+                            )
+                        elif board[i][j] == 4:
+                            self.buttons[i][j].setStyleSheet(
+                                "background-color: #c0392b;"
+                            )
+                        else:
+                            self.buttons[i][j].setStyleSheet("background-color: white;")
+            print("\n\n\n")
+        except Exception as e:
+            print_debug(f"paintBoard() -> ERROR: {e}")
 
     def updateGame(self):
-        self.machineTurn = not self.machineTurn  # Toggle machineTurn
-        self.modelo.printTablero()
-        self.paintBoard(self.modelo.tablero)
-        self.updateGameState()  # Update gamestate
-        self.move_machine()  # Ask if machine would like to move
+        try:
+            self.machineTurn = not self.machineTurn  # Toggle machineTurn
+            self.modelo.printTablero()
+            self.paintBoard(self.modelo.tablero)
+            self.updateGameState()  # Update gamestate
+            self.move_machine()  # Ask if machine would like to move
+        except Exception as e:
+            print_debug(f"updateGame() -> ERROR: {e}")
 
     def updateGameState(self):
         self.human_can_move = self.modelo.canMoveFrom(self.modelo.searchCoords("Human"))
@@ -193,7 +203,7 @@ class GameController:
             self.buttons[i][j].setCursor(QtGui.QCursor(Qt.ArrowCursor))
             self.buttons[i][j].clicked.disconnect()
         except Exception as e:
-            print_debug(f"disableButton() -> {e}")
+            print_debug(f"disableButton() -> ERROR: {e}")
 
     def searchAndDisableActualPosition(self):
         humanCoords = self.modelo.searchCoords("Human")

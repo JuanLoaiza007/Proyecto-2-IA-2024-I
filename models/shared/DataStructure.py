@@ -60,7 +60,7 @@ class Estado:
         self.y = y
 
     def get_coordenadas(self):
-        return [self.x, self.y]       
+        return [self.x, self.y]
 
     def __str__(self) -> str:
         """
@@ -72,9 +72,9 @@ class Estado:
         Returns:
             Las coordenadas en string.
         """
-        a_string = "{} {} {}".format(
-            str(self.x), str(self.y))
+        a_string = "{} {} {}".format(str(self.x), str(self.y))
         return a_string
+
 
 class Problema:
     def __init__(self, estado_inicial: Estado, jugador1: str, jugador2: str, tablero):
@@ -96,36 +96,37 @@ class Problema:
 
     def __str__(self) -> str:
         mensaje = "Estado inicial: {} -> Estado objetivo: {1}".format(
-            self.estado_inicial, self.jugador1, self.jugador2, self.tablero)
+            self.estado_inicial, self.jugador1, self.jugador2, self.tablero
+        )
         return mensaje
 
     def get_estado_inicial(self) -> Estado:
         return self.estado_inicial
-    
+
     def get_jugador1(self) -> str:
         return self.jugador1
-    
+
     def get_jugador2(self) -> str:
         return self.jugador2
-    
+
     def get_tablero(self):
         return self.tablero
-    
+
     def movimientos_jugador(estado: Estado):
         return GameModel.generateHorseMoves(estado)
-    
+
     def nuevo_estado(self, estado: Estado) -> Estado:
         return random.choice(self.movimientos_jugador(estado))
-    
+
     def es_estado_objetivo(self, estado: Estado):
         if self.movimientos_jugador(estado) == []:
             return True
         else:
             return False
-        
+
     def utilidad(estado: Estado) -> int:
         """
-        Evalúa un estado y devuelve un valor numérico que representa 
+        Evalúa un estado y devuelve un valor numérico que representa
         qué tan bueno es ese estado para el jugador.
 
         Args:
@@ -133,10 +134,9 @@ class Problema:
 
         Returns:
             int: Valor numérico de la evaluación del estado.
-        """   
+        """
         x, y = estado.get_coordenadas()
         return x + y
-
 
     '''    def resultado(self, estado: Estado, operador: Operador) -> Estado:
         """
@@ -194,7 +194,12 @@ class Nodo:
         if self.padre != None:
             padre = self.padre.get_estado()
         mensaje = "Estado: {}, padre: {}, operador efectuado: {}, profundidad: {}, costo acumulado: {}".format(
-            str(self.problema.get_estado_inicial()), str(padre), str(self.operador), str(self.profundidad), str(self.costo_acumulado))
+            str(self.problema.get_estado_inicial()),
+            str(padre),
+            str(self.operador),
+            str(self.profundidad),
+            str(self.costo_acumulado),
+        )
         return mensaje
 
     def get_problema(self):
@@ -247,12 +252,12 @@ class Nodo:
         # Limpiar hijos por si las moscas
         self.hijos = []
 
-        #operadores = self.problema.generar_operadores()
+        # operadores = self.problema.generar_operadores()
 
-        #if len(operadores) == 0:
-            #return self.hijos
+        # if len(operadores) == 0:
+        # return self.hijos
 
-        '''        for operador in operadores:
+        """        for operador in operadores:
             # === Creacion y configuracion del nuevo estado ===
             # Creo un nuevo estado despues de aplicar el operador
             nuevo_estado = self.problema.resultado(
@@ -287,13 +292,13 @@ class Nodo:
                 hijo.set_profundidad(self.profundidad + 1)
                 hijo.set_costo_acumulado(self.costo_acumulado + costo)
 
-                self.hijos.append(hijo)'''
+                self.hijos.append(hijo)"""
 
         return self.hijos
 
 
-if __name__ == '__main__':
-    '''    estado_inicial = Estado(0, 0)
+if __name__ == "__main__":
+    """estado_inicial = Estado(0, 0)
     estado_inicial.activar_nave()
     estado_inicial.activar_nave()
 
@@ -304,10 +309,10 @@ if __name__ == '__main__':
     for i in range(10):
         estado_final.usar_nave()
 
-    print(str(estado_inicial))'''
+    print(str(estado_inicial))"""
 
 
-class Test():
-    @ staticmethod
+class Test:
+    @staticmethod
     def start():
         print("[Test.py]: Has llamado a start()")
