@@ -24,7 +24,7 @@ class Minimax:
     def valor_min(problema: Problema, estado: Estado):
         if problema.es_estado_objetivo(estado):
             return problema.utilidad(estado)
-        menor_valor = float('inf')
+        menor_valor = float("inf")
 
         for accion in problema.movimientos_jugador(estado):
             nuevo_estado = problema.nuevo_estado(estado, accion)
@@ -32,12 +32,12 @@ class Minimax:
             menor_valor = min(menor_valor, utilidad)
 
         return menor_valor
-    
+
     @staticmethod
     def valor_max(problema: Problema, estado: Estado):
         if problema.es_estado_objetivo(estado):
             return problema.utilidad(estado)
-        mayor_valor = float('-inf')
+        mayor_valor = float("-inf")
 
         for accion in problema.movimientos_jugador(estado):
             nuevo_estado = problema.nuevo_estado(estado, accion)
@@ -45,5 +45,3 @@ class Minimax:
             mayor_valor = max(mayor_valor, utilidad)
 
         return mayor_valor
-    
-    
