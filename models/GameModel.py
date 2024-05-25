@@ -13,6 +13,7 @@ def print_debug(message):
 class GameModel:
     def __init__(self):
         self.difficulty = None
+        self.intDifficulty = None
         self.tablero = [
             [0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0],

@@ -8,6 +8,7 @@ from models.GameModel import GameModel
 from models.shared.DataStructure import *
 from models.shared.tools.iTimerPyQt5 import iTimerPyQt5
 from models.shared.tools.Dialog import Dialog
+from models.shared.Minimax import mejor_jugada
 from PyQt5.QtCore import QThread
 import random
 
@@ -217,8 +218,9 @@ class GameController:
         if self.human_can_move or self.machine_can_move:
             if self.shouldPlayMachine() and self.machine_can_move:
                 old_pos_machine = self.modelo.searchCoords("Machine")
-                possible_moves = self.modelo.generateHorseMoves(old_pos_machine)
-                new_pos_machine = random.choice(possible_moves)
+                new_pos_machine = mejor_jugada(
+                    self.modelo.tablero, self.modelo.intDifficulty
+                )
                 self.modelo.tablero[new_pos_machine[0]][new_pos_machine[1]] = 1
                 self.modelo.tablero[old_pos_machine[0]][old_pos_machine[1]] = 3
 
@@ -288,6 +290,9 @@ class GameController:
 
     def startGame(self, difficulty):
         self.modelo.difficulty = difficulty
+        self.modelo.intDifficulty = (
+            2 if difficulty == "Facil" else 4 if difficulty == "Medio" else 6
+        )
         self.ui.lbl_titulo.setText(f"Modo {difficulty}")
         self.move_machine()
 
