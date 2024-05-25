@@ -77,7 +77,7 @@ class Estado:
         return a_string
 
 class Problema:
-    def __init__(self, estado_inicial: Estado, jugador1: str, jugador2: str):
+    def __init__(self, estado_inicial: Estado, jugador1: str, jugador2: str, tablero):
         """
         Inicializa un nuevo problema
 
@@ -92,10 +92,11 @@ class Problema:
         self.estado_inicial = estado_inicial
         self.jugador1 = jugador1
         self.jugador2 = jugador2
+        self.tablero = tablero
 
     def __str__(self) -> str:
         mensaje = "Estado inicial: {} -> Estado objetivo: {1}".format(
-            self.estado_inicial, self.jugador1, self.jugador2)
+            self.estado_inicial, self.jugador1, self.jugador2, self.tablero)
         return mensaje
 
     def get_estado_inicial(self) -> Estado:
@@ -106,6 +107,9 @@ class Problema:
     
     def get_jugador2(self) -> str:
         return self.jugador2
+    
+    def get_tablero(self):
+        return self.tablero
     
     def movimientos_jugador(estado: Estado):
         return GameModel.generateHorseMoves(estado)
