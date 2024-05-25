@@ -5,7 +5,6 @@ from PyQt5 import QtWidgets, QtGui
 from PyQt5.QtCore import Qt, QSize, QCoreApplication
 from views.GameView import Ui_MainWindow
 from models.GameModel import GameModel
-from models.shared.DataStructure import *
 from models.shared.tools.iTimerPyQt5 import iTimerPyQt5
 from models.shared.tools.Dialog import Dialog
 from models.shared.Minimax import mejor_jugada
@@ -174,12 +173,6 @@ class GameController:
         self.machine_can_move = self.modelo.canMoveFrom(
             self.modelo.searchCoords("Machine")
         )
-
-        x, y = self.modelo.searchCoords("Human")
-        estado = Estado(x, y)
-
-        humanUtility = Problema.utilidad(estado)
-        print_debug(f"updateGameState() -> {humanUtility}")
 
         quienJuega = "Maquina" if self.shouldPlayMachine() else "Humano"
         puntosMaquina = self.modelo.countPoints("Machine")
