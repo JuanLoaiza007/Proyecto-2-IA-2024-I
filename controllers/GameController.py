@@ -186,7 +186,7 @@ class GameController:
                 winner = "la maquina" if puntosMaquina > puntosHumano else "el humano"
 
             resultado = f"ha ganado {winner}!" if winner else "es un empate!"
-            Dialog.mostrar_dialogo("Resultados", f"El juego ha terminado, {resultado}")
+            self.mostrarDialogo("Resultados", f"El juego ha terminado, {resultado}")
 
     def disableButton(self, i, j):
         try:
