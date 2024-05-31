@@ -294,7 +294,7 @@ class GameController:
     def startGame(self, difficulty):
         self.modelo.difficulty = difficulty
         self.modelo.intDifficulty = (
-            2 if difficulty == "Facil" else 4 if difficulty == "Medio" else 6
+            2 if difficulty == "Principiante" else 4 if difficulty == "Amateur" else 6
         )
         self.ui.lbl_titulo.setText(f"Modo {difficulty}")
         self.move_machine()
